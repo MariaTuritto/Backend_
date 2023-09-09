@@ -1,0 +1,75 @@
+[
+	{
+		"title": "producto prueba1",
+		"description": "Este es un producto prueba",
+		"price": 200,
+		"thumbnail": "https://cdn.pixabay.com/photo/2023/07/04/19/43/man-8106958_1280.png",
+		"code": "cabc1234",
+		"stock": 25,
+		"id": 1
+	},
+	{
+		"title": "producto prueba3",
+		"description": "Este es un producto prueba",
+		"price": 200,
+		"thumbnail": "https://cdn.pixabay.com/photo/2023/07/04/19/43/man-8106958_1280.png",
+		"code": "cabc1236",
+		"stock": 2,
+		"id": 3
+	},
+	{
+		"title": "producto prueba4",
+		"description": "Este es un producto prueba",
+		"price": 400,
+		"thumbnail": "https://cdn.pixabay.com/photo/2023/07/04/19/43/man-8106958_1280.png",
+		"code": "cabc12364",
+		"stock": 4,
+		"id": 4
+	},
+	{
+		"title": "Act product5",
+		"description": "ACT prod prueba5",
+		"price": 800,
+		"thumbnail": "https://cdn.pixabay.com/photo/2023/07/04/19/43/man-8106958_1280.png",
+		"code": "cabNEWACT",
+		"stock": 50,
+		"id": 5
+	},
+	{
+		"id": 6,
+		"title": "NUEVO product6",
+		"description": "NUEVO prod prueba",
+		"price": 600,
+		"thumbnail": "https://cdn.pixabay.com/photo/2023/07/04/19/43/man-8106958_1280.png",
+		"category":"Products333",
+		"code": "cabc123646",
+		"stock": 20
+	},
+	{
+		"title": "Product7",
+		"description": "otro product prueba",
+		"price": 700,
+		"thumbnail": "https://cdn.pixabay.com/photo/2023/07/04/19/43/man-8106958_1280.png",
+		"code": "cabNEWACT",
+		"stock": 50,
+		"id": 7
+	},
+	{
+		"title": "Product8",
+		"description": "otro product prueba",
+		"price": 900,
+		"thumbnail": "https://cdn.pixabay.com/photo/2023/07/04/19/43/man-8106958_1280.png",
+		"code": "cabNEWACT",
+		"stock": 150,
+		"id": 8
+	},
+	{
+		"title": "Product9",
+		"description": "otro product prueba",
+		"price": 800,
+		"thumbnail": "https://cdn.pixabay.com/photo/2023/07/04/19/43/man-8106958_1280.png",
+		"code": "cabNEWACT",
+		"stock": 120,
+		"id": 9
+	}
+]

@@ -1,0 +1,31 @@
+<h1>Let's Talk!</h1>
+<br>
+<br>
+<div id="chat-container">
+  <h5 id="userName">Username</h5>
+  <div id="chat-messages">
+    <div class="message-sender">
+      <p id="chat"> </p>
+    </div>
+
+  </div>
+  <form id="formulario">
+    <input
+      type="text"
+      name="message"
+      id="message"
+      placeholder="Type here your message"
+    />
+    <input type="submit" value="Send" />
+  </form>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script
+  type="text/javascript"
+  src="https://cdn.jsdelivr.net/npm/toastify-js"
+></script>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/chatUser.js"></script>
