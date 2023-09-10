@@ -2,7 +2,7 @@
 <br>
 <br>
 
-  {{#each listProducts}}
+  {{#each products}}
   <article class="container"></article>
     <div class="card" id={{this.id}}>
       <div class="card-body">
@@ -20,3 +20,15 @@
     </div>
   {{/each}}
 </article>
+
+<div class="pagination">
+  {{#if hasPrevPage}}
+    <a href="/?page={{prevPage}}"><button>PrevPage</button></a>
+  {{/if}}
+
+  <h5>{{page}}</h5>
+
+  {{#if hasNextPage}}
+    <a href="/?page={{nextPage}}"><button>NextPage</button></a>
+  {{/if}}
+</div>

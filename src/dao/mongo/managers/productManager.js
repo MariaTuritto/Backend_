@@ -1,22 +1,22 @@
 import productModel from "../models/product.model.js";
 
 export default class productsManager {
-    getProducts = () => {
-            return productModel.find().lean();
+    getProducts = (page,limit) => {
+            return productModel.paginate({},{page,limit,lean:true});
     };
 
-    getProductsBy =  (id) => {
-            return productModel.findOne(id).lean();
+    getProductsBy =  (pid) => {
+            return productModel.findOne({_id:pid}).lean();
        
     };
 
-    addProducts = (products) => {
-            return  productModel.create(products);
+    addProducts = (product) => {
+            return  productModel.create(product);
         
     };
  
-    updateProduct =  (id, products) => {
-            return productModel.updateOne({_id:id},{$set:products})
+    updateProduct =  (id, product) => {
+            return productModel.updateOne({_id:id},{$set:product})
         
     };
 

@@ -1,72 +1,42 @@
-import cartModel from "../models/cart.model.js";
-import productManager from "./productManager.js";
+import cartsModel from "../models/carts.model.js";
 
-const pm = new productManager();
-
-export default class cartManager {
-  getCarts = async () => {
-    try {
-      const carts = await cartModel.find();
-      return carts;
-    } catch (error) {
-      console.error("Error getting carts:", error.message);
-      return [];
-    }
+export default class CartsManager {
+  getCarts = () => {
+    return cartsModel.find().populate("products.product");
   };
 
-  getCartById = async (cartId) => {
-    try {
-      const cart = await cartModel.findById(cartId);
-      return cart;
-    } catch (error) {
-      console.error("Error getting carts by ID:", error.message);
-      return error;
-    }
+  getCartBy = (id) => {
+    return cartsModel.findOne({ _id: id }).populate("products.product");
   };
 
-  addCart = async (products) => {
-    try {
-      let cartData = {};
-      if (products && products.length > 0) {
-        cartData.products = products;
-      }
-
-      const cart = await cartModel.create(cartData);
-      return cart;
-    } catch (error) {
-      console.error("Error creating cart:", error.message);
-      return error;
-    }
+  createCart = (cart) => {
+    return cartsModel.create({ products: cart });
   };
 
-  addProdInCart = async (cid, obj) => {
-    try {
-      const filter = { _id: cid, "products._id": obj._id };
-      const cart = await cartModel.findById(cid);
-      const findProduct = cart.products.some(
-        (product) => product._id.toString() === obj._id
-      );
-
-      if (findProduct) {
-        const update = { $inc: { "products.$.quantity": obj.quantity } };
-        await cartModel.updateOne(filter, update);
-      } else {
-        const update = {
-          $push: { products: { _id: obj._id, quantity: obj.quantity } },
-        };
-        await cartModel.updateOne({ _id: cid }, update);
-      }
-
-      return await cartModel.findById(cid);
-    } catch (error) {
-      console.error("Error adding product to cart:", error.message);
-      return error;
-    }
+  updateCart = (cid, newCart) => {
+    return cartsModel.updateOne({ _id: cid }, { $push: { products: newCart } });
   };
-  updateCart = (id, cart) => {
-    return cartModel.updateOne({ _id: id }, { $set: cart });
+
+  updateCarttUnits = (cid, pid, newQuantity) => {
+    return cartsModel.updateOne(
+      { _id: cid },
+      { $inc: { "products.[product].quantity": Number(newQuantity) } },
+      { arrayFilters: [{ "element._id": pid }] }
+    );
   };
+
+  deleteProductFromCartById = (cid, pid) => {
+    return cartsModel.updateOne(
+      { _id: cid },
+      { $pull: { products: { _id: pid } } }
+    );
+  };
+
+  deleteAllProductsFromCartById = (cid) => {
+    return cartsModel.updateOne({ _id: cid }, { $set: { products: [] } });
+  };
+
   deleteCart = (id) => {
-    return cartModel.deleteOne({ _id: id });
+    return cartsModel.deleteOne({ _id: id });
   };
 }

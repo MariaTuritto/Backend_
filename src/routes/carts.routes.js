@@ -1,76 +1,130 @@
 import { Router } from "express";
-import CartManager from '../dao/mongo/managers/cartManager.js';
-import ProductManager from '../dao/mongo/managers/productManager.js';
-import __dirname from "../utils.js";
+import cartManager from "../dao/mongo/managers/cartManager.js"
+import productsManager from "../dao/mongo/managers/productManager.js";
 
-const cm = new CartManager();
-const pm = new ProductManager();
+const router = Router()
+const cartsManagerService = new cartManager()
+const productsManagerService = new productsManager()
 
-const router = Router();
-
-router.get('/carts', async (req, res)=> {
-    const listOfCarts = await cm.getCarts()
-    res.status(200).json({message:'succes', payload: listOfCarts})
-});
-
-router.get ('/carts/:cid', async (req,res) => {
-    const cartFound = await cm.gerCartById(req.params.cid) 
-    res.send({status:'success', payload: cartFound})
-});
-
-router.post('/carts', async(req,res)=>{
-try {
-    const {obj} = req.body;
-    if(!Array.isArray(obj)){
-        return res.status(400).send('Invalid request: products must be an array');
-    }
-
-    const validProducts = [];
-
-    for( const product of obj){
-        const checkId = await pm.getProductsBy(product._id);
-        if(checkId === null) {
-            return res.status(404).send(`Product whith id${product._id} not found`);
-        }
-        validProducts.push(checkId);
-    }
-    const cart = await cm.addCart(validProducts);
-    res.status(200).send(cart);
-
-} catch (error) {
-    return res.status(500).send('Internal server error');
-}
-});
-   
-
-router.post('/carts/:cid/producst/:pid', async(req,res)=> {
-    const cid = parseInt(req.params.cid)
-    const pid = parseInt(req.params.pid)
-    const {quantity} = req.body;
-
-    try{
-        const checkIdProd = await pm.getProductsBy(pid);
-        if (!checkIdProd) {
-            return res.status(404).send({message:`Not found products whit Id: ${pid}`})
-        }
-
-        const checkIdCart = await cm.gerCartById(cid);
-        if(!checkIdCart) {
-            return res.status(404).send({message: `Not found cart whit id: ${cid}`});
-        }
-
-        const result = await cm.addProdInCart (cid, {
-            _id: pid,
-            quantity: quantity,
-        });
-        console.log(result);
-        return res.status(200).send({message:`Product whit id:${pid} added to cart whit id: ${cid}`, cart: result})
-    } catch (error){
-        console.log('Error', error);
-        return res.status(500).send({message:'Error occurred while processing the request'})
-    }
+router.get("/", async (req,res) => {
+  try {
+    const carts = await cartsManagerService.getCarts()
+    res.send({status: "success", payload: carts})
+  } catch (error) {
+    res.status(400).send({status: "error", message: error.message})
+  }
 })
 
-//FALTA AGREGAR 2 PUT Y 2 DELETE
+router.get("/:cid", async (req, res) => {
+  try {
+    const cart = await cartsManagerService.getCartBy(req.params.cid);
+    res.send({status: "success", payload: cart });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+});
 
-export default router;
+
+router.post("/", async (req, res) => {
+  try {
+    const cartData = req.body
+    const cart = await cartsManagerService.createCart(cartData)
+    res.send({status: "success", payload: cart });
+  } catch (error) {
+    res.status(400).send({ status: "error", message: error.message });
+  }
+});
+
+router.post("/:cid/product/:pid", async (req, res) => {
+  try {
+    const {cid,pid} = req.params
+    
+    const cart = await cartsManagerService.getCartBy(cid)
+    if(!cart) return res.status(400).send({status: "error", message: "Cart doesn't exist"})
+
+    const productExists = await productsManagerService.getProductsBy(pid)
+    if(!productExists) return res.status(400).send({status: "error", message: "Product doesn't exist"})
+
+    const productIsInCart = cart.products.find(({product}) => product.equals(pid))
+
+    if (!productIsInCart) {
+      cart.products.push({ product: pid, quantity: 1 })
+    } else {
+      productIsInCart.quantity++      
+    }
+    
+    await cartsManagerService.updateCart(cid,cart.products);
+    res.send({status: "success", payload: "Product added" });
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+  }
+});
+
+router.put("/:cid", async (req,res) => {
+  try {
+    const {cid} = req.params
+    const newProducts = req.body
+    const cart = await cartsManagerService.getCartBy(cid)
+    if (!cart) return res.status(400).send({status: "error", message: "Cart not found"})
+    
+    await cartsManagerService.updateCart(cid,newProducts);
+    res.send({status: "success", payload: "Cart updated" });
+  
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+  }
+})
+
+router.put("/:cid/products/:pid", async (req,res) => {
+   try {
+    const {cid,pid} = req.params
+    const newQuantity = req.body
+    const cart = await cartsManagerService.getCartBy(cid)
+    if (!cart) return res.status(400).send({status: "error", message: "Cart not found"})    
+    const productExists = await productsManagerService.getProductsBy(pid)
+    if(!productExists) return res.status(400).send({status: "error", message: "Product doesn't exist"})
+
+    const productIsInCart = cart.products.find(({product}) => product.equals(pid))
+    if(!productIsInCart) return res.status(400).send({status: "error", message: "Product not found at cart"})
+
+    await cartsManagerService.updateCarttUnits(cid,pid,newQuantity)
+    res.send({status: "success", payload: "Quantity updated" });
+
+   } catch (error) {
+    res.status(400).send({ message: error.message });
+
+   }
+})
+
+router.delete("/:cid", async (req,res) => {
+  const cartExists = await cartsManagerService.getCartBy(req.params.cid)
+  if(!cartExists) return res.status(400).send({status: "error", message: "Product not found"})
+  else {
+    const result = await cartsManagerService.deleteAllProductsFromCartById(req.params.cid)
+    res.send({status: "success", message: "All products have been deleted"})
+  }
+})
+
+router.delete("/:cid/products/:pid", async (req,res) => {
+  try {
+    const {cid,pid} = req.params
+
+    const cart = await cartsManagerService.getCartBy(cid)
+    if(!cart) return res.status(400).send({status: "error", message: "Cart not found"})
+  
+    const productExists = await productsManagerService.getProductsBy(pid)
+    if(!productExists) return res.status(400).send({status: "error", message: "Product doesn't exist"})
+  
+    const productIsInCart = cart.products.find(({product}) => product.equals(pid))
+  
+    if(!productIsInCart) return res.status(400).send({status: "error", message: "Product not found in cart"})
+  
+    await cartsManagerService.deleteProductFromCartById(cid,pid)
+    res.send({status: "success", message: "Product deleted."})
+  
+  } catch (error) {
+    res.status(400).send({status: "error", message: error.message})
+  }
+})
+
+export default router
