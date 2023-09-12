@@ -1,6 +1,14 @@
 import productModel from "../models/product.model.js";
 
 export default class productsManager {
+
+    getProductsAgg = ()=> {
+        return productModel.aggregate([
+                {$match: {status: true}},
+                {$sort: {price:-1}}
+               
+        ])
+    }
     getProducts = (page,limit) => {
             return productModel.paginate({},{page,limit,lean:true});
     };

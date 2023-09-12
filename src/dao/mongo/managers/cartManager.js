@@ -9,7 +9,7 @@ export default class CartsManager {
     return cartsModel.findOne({ _id: id }).populate("products.product");
   };
 
-  createCart = (cart) => {
+  addCart = (cart) => {
     return cartsModel.create({ products: cart });
   };
 

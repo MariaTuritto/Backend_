@@ -6,6 +6,15 @@ import productManager from '../dao/mongo/managers/productManager.js';
 const productManagerService = new productManager();
 const router = Router();
 
+router.get('/aggregate', async (req, res)=> {
+  try {
+    const aggregateResult = await productManagerService.getProductsAgg();
+    res.send({status: 'succes' , payload: aggregateResult})
+  } catch (error) {
+    res.json({ error: error });
+  }
+})
+
 router.get("/", async (req, res) => {
     try {
     const {page = 1,limit = 10} = req.query
@@ -78,7 +87,7 @@ router.get("/", async (req, res) => {
       const result = await productManagerService.addProducts(newProduct)
       res.send({status: "success", payload: result._id});
     } catch (error) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: "error addProducts" });
     }
   });
   

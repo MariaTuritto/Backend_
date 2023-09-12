@@ -7,13 +7,16 @@ import productsRouter from './routes/products.routes.js';
 import cartsRouter from './routes/carts.routes.js';
 
 
+
+
 const app = express();
 
 const PORT = process.env.PORT||8080;
-//Lintening server:
-const server = app.listen(PORT, () => console.log(`Listening on PORT ${PORT}`));
+
+app.listen(PORT, () => console.log(`Listening on PORT ${PORT}`));
 //connect whit moongoose:
 const connection = mogoose.connect("mongodb+srv://turittomaria:1234@cluster0.5r7jrt7.mongodb.net/Myecommerce?retryWrites=true&w=majority")
+
 
 app.engine('handlebars', handlebars.engine());
 app.set('views',`${__dirname}/views`);
@@ -26,8 +29,9 @@ app.use(express.static(`${__dirname}/public`));
 
 //routes 
 app.use('/', viewsRoutes);
-app.use('api/products', productsRouter);
-app.use('api/carts', cartsRouter);
+app.use('/api/products', productsRouter);
+app.use('/api/carts', cartsRouter);
+
 
 
 
