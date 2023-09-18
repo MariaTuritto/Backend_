@@ -36,7 +36,8 @@ const schema = new mongoose.Schema(
     },
     category: {
       type: Array,
-      default: [],
+      required:true,
+      index: true
     },
   },
   { timestamps: true }

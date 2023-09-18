@@ -1,0 +1,13 @@
+<h1>Carts list</h1>
+
+{{#if cart}}
+    <p> id carrito: {{cart._id}}</p>
+    <br>
+    {{#each cart.products}}
+        <br>
+        <p> id product: {{this.id_product}}</p>
+        <p> quantity product: {{this.quantity}}</p>
+    {{/each}}
+{{else}}
+    <p>Not found cart</p>
+{{/if}}

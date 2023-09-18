@@ -2,15 +2,23 @@ import productModel from "../models/product.model.js";
 
 export default class productsManager {
 
-    getProductsAgg = ()=> {
-        return productModel.aggregate([
-                {$match: {status: true}},
-                {$sort: {price:-1}}
+    categories = async () => {
+        try {
+                const categories = await productModel.aggregate([
+                        {$group:{_id:0, categories:{$addToSet:"$category"}}}
+                ])
+                return categories[0].categories
+                
+        } catch(error) {
+                return console.error(error);
+        }
                
-        ])
-    }
-    getProducts = (page,limit) => {
-            return productModel.paginate({},{page,limit,lean:true});
+                
+    };
+
+
+    getProducts = (filter, options) => {
+            return productModel.paginate(filter, options);
     };
 
     getProductsBy =  (pid) => {
