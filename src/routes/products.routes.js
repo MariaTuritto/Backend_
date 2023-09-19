@@ -2,100 +2,41 @@ import {Router} from 'express';
 import productManager from '../dao/mongo/managers/productManager.js';
 import uploader from '../service/uploadService.js';
 
-
-const productManagerService = new productManager();
 const router = Router();
+const productManagerService = new productManager();
+
 
 
 router.get("/", async (req, res) => {
 
     try {
   
-    const {limit, page, sort, category} = req.query
-    const options = {
-      page: Number(page) || 1,
-      limit: Number(limit) || 10,
-      sort: {price: Number(sort)}
-    };
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const sort = req.query.sort || 'asc';
+    const category = req.query.category || null; 
+    const status = req.query.status || null;     
 
-    if (!(options.sort.price === -1 || options.sort.price === 1)) {
-      delete options.sort
-    }
-
-    const categories = await productManagerService.categories();
-
-    const result = categories.some( cat => cat === category)
-
-    if (result)
-    {
-      const paginationResult = await productManagerService.getProducts({category}, options)
-
-      
-    const products = paginationResult.docs;
-    const currentPage = paginationResult.page;
-    const {hasPrevPage, hasNextPage, prevPage, nextPage,totalDocs,totalPages} = paginationResult;
-
-    const baseUrl = `${req.protocol}://${req.hostname}:${process.env.PORT || 8080}${req.baseUrl}`
-    const prevLink = hasPrevPage ? `${baseUrl}?page=${prevPage}&limit=${limit}` : null
-    const nextLink = hasNextPage ? `${baseUrl}?page=${nextPage}&limit=${limit}` : null
-
-    const paginationData = {
-      currentPage,
-      hasPrevPage,
-      hasNextPage,
-      prevPage,
-      nextPage,
-      totalDocs,
-      totalPages,
-      prevLink,
-      nextLink
-    }
-    res.send({status: "success", payload: products, ...paginationData})
-
-    }
-  //si no hago ningun filter por categoria entonces: 
   
-    const paginationResult = await productManagerService.getProducts({}, options);
+    const queryObj = {};
 
-    const products = paginationResult.docs;
-    const currentPage = paginationResult.page;
-    const {hasPrevPage, hasNextPage, prevPage, nextPage,totalDocs,totalPages} = paginationResult;
-
-
-    const baseUrl = `${req.protocol}://${req.hostname}:${process.env.PORT || 8080}${req.baseUrl}`
-    const prevLink = hasPrevPage ? `${baseUrl}?page=${prevPage}&limit=${limit}` : null
-    const nextLink = hasNextPage ? `${baseUrl}?page=${nextPage}&limit=${limit}` : null
-
-    const paginationData = {
-      currentPage,
-      hasPrevPage,
-      hasNextPage,
-      prevPage,
-      nextPage,
-      totalDocs,
-      totalPages,
-      prevLink,
-      nextLink
+    if (category) {
+        queryObj.category = category; 
     }
 
-    res.send({status: "success", payload: products, ...paginationData})
+    if (status) {
+        queryObj.status = status; 
+    }
+
+    const paginationResult = await productManagerService.getProductsP(limit, page, queryObj, sort)
+
+    res.send({status:"succes", payload: paginationResult});
 
     } catch (error) {
       res.json({ error: error });
     }
   });
   
-
-  router.get("/:pid", async (req, res) => {
-    try {
-      const {pid} = req.params;
-      const product = await productManagerService.getProductsBy(pid)
-      res.json({status: "success", payload: product});
-    } catch (error) {
-      res.json({ error: error });
-    }
-  });
-
   router.post("/", uploader.array('thumbnail'), async (req, res) => {
     try {
       const {
@@ -131,6 +72,18 @@ router.get("/", async (req, res) => {
       res.status(400).json({ error: "error addProducts" });
     }
   });
+
+
+  router.get("/:pid", async (req, res) => {
+    try {
+      const {pid} = req.params;
+      const product = await productManagerService.getProductsBy(pid)
+      res.json({status: "success", payload: product});
+    } catch (error) {
+      res.json({ error: error });
+    }
+  });
+
   
   router.put('/:pid', async (req,res) => {
     try {

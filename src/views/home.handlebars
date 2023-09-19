@@ -1,25 +1,44 @@
-<h1 class="title">Products:</h1>
-<br>
-<br>
+<h1 class="title">All Products:</h1>
+<br />
+<div>
+    
+  <h3>Welcome {{this.user.firstName}}</h3>
 
-  {{#each products}}
-  <article class="container"></article>
-    <div class="card" id={{this.id}}>
-      <div class="card-body">
-        <img class="card-img-box" src={{this.thumbnail.[0]}} alt={{this.title}} width="100" />
-        <h5 class="card-title">{{this.title}}</h5>
-        <div class="card-content">
-          <p class="text">{{this.description}}</p>
-          <p class="text">Category: {{this.category}}</p>
-          <p class="text">Code: {{this.code}}</p>
-          <p class="text">Stock: {{this.stock}}</p>
-          <p class="text">Price: ${{this.price}}</p>
-          <a href="#">Add to cart</a>
-        </div>
+  {{#if roleUser}}
+    <p>Your mail is:{{user.email}}</p>
+  {{/if}}
+  <br />
+  <a href="/api/sessions/logout"><button>logout</button></a>
+  <br />
+</div>
+
+{{#if category}}
+  <p>Category: {{category}}</p>
+{{/if}}
+
+{{#if status}}
+  <p>Status: {{status}}</p>
+{{/if}}
+
+{{#each filterProducts}}
+
+  <div class="card" id={{this._id}}>
+    <div class="card-body">
+      {{#with this.thumbnail}}
+        <img src="{{this.0}}" />
+      {{/with}}
+      <br />
+      <div class="card-content">
+        <p class="card-title">{{this.title}}</p>
+        <p class="card-text">{{this.description}}</p>
+        <p class="card-text">Code: {{this.code}}</p>
+        <p class="card-text">Stock: {{this.stock}}</p>
+        <p class="card-text">Price: ${{this.price}}</p>
+        <button>Add to cart</button>
       </div>
     </div>
-  {{/each}}
-</article>
+  </div>
+{{/each}}
 
 <div class="pagination">
   {{#if hasPrevPage}}
