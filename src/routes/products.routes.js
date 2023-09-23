@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
     try {
   
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 3;
     const sort = req.query.sort || 'asc';
     const category = req.query.category || null; 
     const status = req.query.status || null;     
@@ -56,7 +56,6 @@ router.get("/", async (req, res) => {
         title,
         description,
         price,
-        thumbnail,
         code,
         status,
         stock,

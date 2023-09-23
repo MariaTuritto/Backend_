@@ -10,6 +10,8 @@ import sessionRouter from './routes/sessions.routes.js';
 // import cookieParser from 'cookie-parser';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import passport from 'passport';
+import initializeStrategies from './config/passport.config.js';
 
 
 
@@ -28,6 +30,9 @@ app.engine('handlebars', handlebars.engine());
 app.set('views',`${__dirname}/views`);
 app.set('view engine','handlebars');
 
+//inicializamos passport:
+initializeStrategies();
+app.use(passport.initialize());
 //Middlewares
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));

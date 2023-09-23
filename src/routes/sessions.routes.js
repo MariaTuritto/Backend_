@@ -1,63 +1,54 @@
 import { Router } from "express";
-import userManager from "../dao/mongo/managers/userManager.js";
+import passport from "passport";
 
 const router = Router();
-const userManagerService = new userManager();
 
-router.post('/register', async (req, res) => {
-    const {
-        firstName, 
-        lastName, 
-        email, 
-        password
-    } = req.body
-if(!firstName|| !lastName || !email || !password) return res.status(400).send({status:"error", error: "Incomplete values"})
+router.post(
+  "/register",
+  passport.authenticate("register", {
+    failureRedirect: "/api/sessions/authFail",
+  }),
+  async (req, res) => {
+    //Los usuarios siempre van a llegar por req.user
+    res.status(200).send({ status: "succes", payload: req.user._id });
+  }
+);
 
-const newUser = {
-    firstName,
-    lastName,
-    email,
-    password
-};
-const result = await userManagerService.createUser(newUser);
+router.post(
+  "/login",
+  passport.authenticate("login", {
+    failureRedirect: "/api/sessions/authFail",
+    failureMessage: true,
+  }),
+  async (req, res) => {
+    //Los usuarios siempre van a llegar por req.user
+    req.session.user = req.user;
+    res.send({ status: "succes", message: "Logged In" });
+  }
+);
+//PARA AUTENTICACION DE 3ROS, SIEMPRE OCUPAS 2 ENDPOINTS
+//1RO PARA LLAMARLO Y 2DO TE TRAE TODA LA INFO
+router.get("/github", passport.authenticate("github"), (req, res) => {});
 
-res.status(200).send({status:"succes", payload:result._id});
+router.get("/githubcallback", passport.authenticate("github"), (req, res) => {
+  req.session.user = req.user;
+  res.redirect("/"); //ruta base
+});
 
-}) 
+router.get("/authFail", (req, res) => {
+  console.log(req.session.messages);
+  res.status(401).send({ status: "error", error: "Error auth" });
+});
 
-router.post('/login', async(req,res) => {
-    const {email, password} = req.body;
-    if(!email || !password) return res.status(400).send({status:"error", error:"Incomplete values"})
-
-    if(email === "adminCoder@coder.com" && password === "adminCod3r123"){
-        const adminUser = {
-            firstName: "Admin1",
-            lastName: "LastAdmin1",
-            email:"adminCoder@coder.com",
-            role: "admin"
-        }
-        req.session.user = adminUser
-        res.send({status:"succes", message:"Admin login"})
-        return
+router.get("/logout", async (req, res) => {
+  req.session.destroy((error) => {
+    if (error) {
+      console.log(error);
+      return res.redirect("/");
+    } else {
+      res.redirect("/");
     }
-
-    const user = await userManagerService.getUserBy({email,password});
-    if(!user) return res.status(400).send({status:"error", error: "Incorrect Credentials"})
-
-    req.session.user = user;
-    res.status(200).send({status:"succes", message:"Correct login"});
-})
-
-router.get('/logout', async(req,res) => {
-    req.session.destroy(error =>{
-        if(error) {
-            console.log(error);
-            return res.redirect('/');
-        }else{
-            res.redirect('/')
-        }
-    })
-})
-
+  });
+});
 
 export default router;

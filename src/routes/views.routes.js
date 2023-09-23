@@ -6,11 +6,11 @@ const router = Router();
 const productManagerService = new productManager();
 const cartManagerService = new cartManager();
 
-router.get("/", async (req, res) => {
+router.get("/products", async (req, res) => {
 
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 3;
     const sort = req.query.sort || 'asc';
     const category = req.query.category || null; 
     const status = req.query.status || null;
@@ -32,10 +32,10 @@ router.get("/", async (req, res) => {
       roleUser = true 
     }
  
-    res.render("home", {
+    res.render('products', {
       user,
       roleUser,
-      products,
+      filterProducts: paginationResult.filterProducts,
       page: currentPage,
       hasPrevPage,
       hasNextPage,
@@ -54,7 +54,7 @@ router.get("/carts/:cid", async (req, res) => {
   const filter = { _id: carrito_id };
   const cart = await cartManagerService.getCartsBy(filter);
 
-  res.render("Carts", { cart});
+  res.render("carts", { cart});
 });
 
 router.get("/realtimeproducts", async (req, res) => {
