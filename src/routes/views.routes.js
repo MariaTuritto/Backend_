@@ -1,48 +1,35 @@
 import { Router } from "express";
 import productManager from "../dao/mongo/managers/productManager.js";
+import { getValidFilters } from "../utils.js";
 import cartManager from "../dao/mongo/managers/cartManager.js";
 
 const router = Router();
 const productManagerService = new productManager();
 const cartManagerService = new cartManager();
 
-router.get("/products", async (req, res) => {
-
+//ACTUALIZACIÓN CON JWT
+router.get("/", async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 3;
-    const sort = req.query.sort || 'asc';
-    const category = req.query.category || null; 
-    const status = req.query.status || null;
-    
-    const queryObj = {};
 
-    if(category) queryObj.category = category;
-    if(status) queryObj.status = status; 
-
-    const paginationResult = await productManagerService.getProductsV(page,limit,queryObj,sort);
-    const products = paginationResult.docs;
-    const currentPage = paginationResult.page;
-    const { hasPrevPage, hasNextPage, prevPage, nextPage, totalPages } = paginationResult;
-    const {user} = req.session
-
-    let roleUser = null
-
-    if (user.role === "user") {
-      roleUser = true 
+    let {page=1, limit=3, sort, order =1, ...filters} = req.query;
+    const cleanFilters = getValidFilters(filters, 'product')
+    console.log(cleanFilters)
+    let sortResult= {}
+    if(sort) {
+      sortResult[sort] = order
     }
- 
-    res.render('products', {
-      user,
-      roleUser,
-      filterProducts: paginationResult.filterProducts,
-      page: currentPage,
-      hasPrevPage,
-      hasNextPage,
-      prevPage,
-      nextPage,
-      totalPages
-    });
+    const pagination = await productManagerService.getPaginateProducts(cleanFilters, {page, lean:true, limit, sort:sortResult})
+    console.log(pagination)
+
+    res.render('home', {
+      css: 'home',
+      products: pagination.docs,
+      hasNextPage: pagination.hasNextPage,
+      hasPrevPage: pagination.hasPrevPage,
+      nextPage: pagination.nextPage,
+      prevPage: pagination.prevPage,
+      page: pagination.page
+    })
 
   } catch (error) {
     res.json({ error: error });
@@ -54,13 +41,10 @@ router.get("/carts/:cid", async (req, res) => {
   const filter = { _id: carrito_id };
   const cart = await cartManagerService.getCartsBy(filter);
 
-  res.render("carts", { cart});
+  res.render('carts', {cart});
 });
 
-router.get("/realtimeproducts", async (req, res) => {
-  const realTimePro = await productManagerService.getProducts();
-  res.render("realtimeproducts", { realTimePro });
-});
+
 
 router.get('/', async (req,res) => {
   try {
@@ -90,5 +74,9 @@ router.get('/login', async (req,res) => {
     res.json({ error: error });
   }
 })
+
+// router.get('/profilejwt', async(req,res)=>{
+//   res.render('profileJWT')
+// })
 
 export default router;

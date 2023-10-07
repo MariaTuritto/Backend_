@@ -1,8 +1,53 @@
-<h1>List of Products</h1>
-<ul>
-    {{#each productos}}
-        <li>{{this.title}} - 
-            {{this.descripcion}}. 
-            Price: ${{this.price}}</li>
-    {{/each}}
-</ul>
+<h3 class="title">All Products:</h3>
+
+<div>
+    
+  <h4 class="title">Welcome {{this.user.firstName}}</h4>
+
+  {{#if roleUser}}
+    <p class="subtitle">Your mail is:{{user.email}}</p>
+  {{/if}}
+
+  <a href="/api/sessions/logout"><button class="btn">logout</button></a>
+
+</div>
+
+{{#if category}}
+  <p>Category: {{category}}</p>
+{{/if}}
+
+{{#if status}}
+  <p>Status: {{status}}</p>
+{{/if}}
+<div class="cardConteiner">
+{{#each products}}
+
+  <div class="card" id={{this._id}}>
+    <div class="card-body">
+    <img class="card-img-box" src={{this.thumbnail}}/>
+      <br />
+      <div class="card-content">
+        <p class="card-title">{{this.title}}</p>
+        <p class="card-text">{{this.description}}</p>
+        <p class="card-text">Stock: {{this.stock}}</p>
+        <p class="card-text">Price: ${{this.price}}</p>
+        <button class="btn" onclick="addProduct('{{this._id}}')">Agregar al carrio</button>
+      </div>
+    </div>
+  </div>
+
+{{/each}}
+</div>
+<div class="pagination">
+  {{#if hasPrevPage}}
+    <a href="/?page={{prevPage}}"><button class="btn">PrevPage</button></a>
+  {{/if}}
+
+  <h5>{{page}}</h5>
+
+  {{#if hasNextPage}}
+    <a href="/?page={{nextPage}}"><button class="btn">NextPage</button></a>
+  {{/if}}
+</div>
+  
+<script src="/js/home.js"></script>

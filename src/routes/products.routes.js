@@ -3,41 +3,23 @@ import productManager from '../dao/mongo/managers/productManager.js';
 import uploader from '../service/uploadService.js';
 
 const router = Router();
+
 const productManagerService = new productManager();
 
 
-
+//Obtener todos los productos
 router.get("/", async (req, res) => {
-
     try {
-  
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 3;
-    const sort = req.query.sort || 'asc';
-    const category = req.query.category || null; 
-    const status = req.query.status || null;     
-
-  
-    const queryObj = {};
-
-    if (category) {
-        queryObj.category = category; 
-    }
-
-    if (status) {
-        queryObj.status = status; 
-    }
-
-    const paginationResult = await productManagerService.getProductsP(limit, page, queryObj, sort)
-
-    res.send({status:"succes", payload: paginationResult});
+  const products = await productManagerService.getProducts();
+  res.send({status:"succes", payload: products})
 
     } catch (error) {
       res.json({ error: error });
     }
   });
-  
+//Enviar los productos a la DataBase
   router.post("/", uploader.array('thumbnail'), async (req, res) => {
+   console.log(req.files)
     try {
       const {
         title,
@@ -62,9 +44,9 @@ router.get("/", async (req, res) => {
         category,
       }
       
-      const thumbnail = req.files.map(file=>`${req.protocol}://${req.hostname}:${process.env.PORT||8080}/img/${file.filename}`)
+      const thumbnail = req.files.map(file=>`${req.protocol}://${req.hostname}:${process.env.PORT||8080}/img/${file.filename}`);
       newProduct.thumbnail = thumbnail; 
-
+      //Se crea el objeto, se mapean las imagenes y luego se insertan en la dataBase
       const result = await productManagerService.addProducts(newProduct)
       res.send({status: "success", payload: result._id});
     } catch (error) {
@@ -72,7 +54,7 @@ router.get("/", async (req, res) => {
     }
   });
 
-
+//Obtener el producto por su id
   router.get("/:pid", async (req, res) => {
     try {
       const {pid} = req.params;
@@ -83,10 +65,10 @@ router.get("/", async (req, res) => {
     }
   });
 
-  
+  //Actualizar productos con tal id
   router.put('/:pid', async (req,res) => {
     try {
-      const id = req.params.pid
+      const {pid} = req.params;
       const {
         title,
         description,
@@ -107,10 +89,10 @@ router.get("/", async (req, res) => {
         category,   
       }
 
-      const product = await productManagerService.getProductsBy({_id: id})
-      if (!product) return res.status(404).send({status: "error", error: "Product doesn't exist"})
-      const result = await productManagerService.updateProduct(id, updateProduct)
-      res.send({status: "success", payload: result, message: "Product updated"})
+      const product = await productManagerService.getProductsBy({_id:pid});
+      if (!product) return res.status(400).send({status: "error", error: "Product doesn't exist"});
+      await productManagerService.updateProduct(pid, updateProduct)
+      res.send({status: "success", message: "Product updated"})
       } catch (error) {
       res.json({ error: 'error' });     
       }
@@ -118,9 +100,9 @@ router.get("/", async (req, res) => {
   
   router.delete("/:pid",async (req,res) => {
     try {
-      const id = req.params.pid
-      const result = await productsService.deleteProduct(id)
-      res.send({status: "success", payload: result, message: "Product deleted"})
+      const {pid} = req.params
+      const result = await productManagerService.deleteProduct(pid)
+      res.send({status: "success", message: "Product deleted"})
 
     } catch (error) {
       res.json({ error: 'error' });     

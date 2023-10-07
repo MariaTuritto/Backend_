@@ -1,20 +1,20 @@
-import cartsModel from "../models/carts.model.js";
+import cartsModel from "../models/cart.model.js";
 
 export default class CartsManager {
-  getCarts = () => {
-    return cartsModel.find().populate("products.product");
+  
+  getCartBy = (cid, options = {}) => {
+    if(options.populate){
+      return cartsModel.findOne(cid).populate("products.product");
+    }
+    return cartsModel.findOne({_id: cid})
   };
 
-  getCartBy = (id) => {
-    return cartsModel.findOne({ _id: id }).populate("products.product");
-  };
-
-  addCart = (cart) => {
-    return cartsModel.create({ products: cart });
+  createCart = () => {
+    return cartsModel.create({ products: [] });
   };
 
   updateCart = (cid, newCart) => {
-    return cartsModel.updateOne({ _id: cid }, { $push: { products: newCart } });
+    return cartsModel.updateOne({ _id: cid }, { $set:newCart });
   };
 
   updateCarttUnits = (cid, pid, newQuantity) => {
@@ -25,18 +25,19 @@ export default class CartsManager {
     );
   };
 
-  deleteProductFromCartById = (cid, pid) => {
-    return cartsModel.updateOne(
-      { _id: cid },
-      { $pull: { products: { _id: pid } } }
-    );
+  deleteCart = (cid) => {
+    return cartsModel.deleteOne({ _id: cid });
   };
 
-  deleteAllProductsFromCartById = (cid) => {
+  
+  deleteAllProducts = (cid) => {
     return cartsModel.updateOne({ _id: cid }, { $set: { products: [] } });
   };
+  
+  deleteProductsById = (cid, pid) => {
+    return cartsModel.updateOne({_id: cid}, {$pull: {products: {_id: pid}}})
+  }
 
-  deleteCart = (id) => {
-    return cartsModel.deleteOne({ _id: id });
-  };
+
+
 }
