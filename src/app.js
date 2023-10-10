@@ -13,7 +13,7 @@ import SessionsRouter from './routes/SessionsRouter.js';
 
 
 
-import cartSetter from './middleware/cartSetter.js';
+
 
 import __dirname from './utils.js';
 import config from './config/config.js';
@@ -36,7 +36,7 @@ app.use(express.static(`${__dirname}/public`));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
-app.use(cartSetter);
+
 
 
 //inicializamos passport:

@@ -7,7 +7,7 @@ import { getValidFilters } from "../utils.js";
 const productManagerService = new productManager();
 
 
-//ACTUALIZACIÓN CON BaseRouter 
+//ACTUALIZACIÓN CON BASEROUTER
 class ViewsRouter extends BaseRouter {
 init(){
   this.get('/register',['NO_AUTH'], async(req,res)=>{
