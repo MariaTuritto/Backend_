@@ -60,7 +60,7 @@ router.get('/', async (req,res) => {
 router.get('/register', async (req,res) => {
   
   try {
-    res.render('register', {})
+    res.render('register')
   } catch (error) {
     res.json({ error: error });
   }
@@ -69,7 +69,7 @@ router.get('/register', async (req,res) => {
 router.get('/login', async (req,res) => {
 
   try {
-    res.render('login',{})
+    res.render('login')
   } catch (error) {
     res.json({ error: error });
   }

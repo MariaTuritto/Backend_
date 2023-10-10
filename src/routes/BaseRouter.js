@@ -1,5 +1,7 @@
 import { Router } from "express";
-
+import passportCall from "../middleware/passportCall.js";
+import executePolicies from "../middleware/executePolicies.js";
+import cartSetter from "../middleware/cartSetter.js";
 export default class BaseRouter {
     constructor(){
         this.router = Router();
@@ -11,28 +13,31 @@ export default class BaseRouter {
         return this.router;
     }
 
-    get(path,...callbacks){
-        this.router.get(path,this.generateCustomResponses, this.applyCallbacks(callbacks))
+    get(path,policies,...callbacks){
+        this.router.get(path,this.generateCustomResponses,passportCall('jwt', {strategyType:'JWT'}), cartSetter, executePolicies(policies),this.applyCallbacks(callbacks))
 
     }
 
-    post(path,...callbacks){
-        this.router.post(path, this.generateCustomResponses, this.applyCallbacks(callbacks))
+    post(path,policies,...callbacks){
+        this.router.post(path, this.generateCustomResponses,passportCall('jwt', {strategyType:'JWT'}),cartSetter, executePolicies(policies),this.applyCallbacks(callbacks))
 
     }
 
-    put(path,...callbacks){
-        this.router.put(path,this.generateCustomResponses, this.applyCallbacks(callbacks))
+    put(path,policies,...callbacks){
+        this.router.put(path,this.generateCustomResponses, passportCall('jwt', {strategyType:'JWT'}),cartSetter,
+        executePolicies(policies),this.applyCallbacks(callbacks))
 
     }
-    delete(path,...callbacks){
-        this.router.delete(path,this.generateCustomResponses, this.applyCallbacks(callbacks))
+    delete(path,policies,...callbacks){
+        this.router.delete(path,this.generateCustomResponses, passportCall('jwt', {strategyType:'JWT'}),cartSetter,executePolicies(policies),this.applyCallbacks(callbacks))
 
     }
     generateCustomResponses(req,res,next){
         res.sendSuccess = message => res.send({status:'success', message})
         res.sendSuccessWithPayload = payload => res.send({status:'success', payload})
         res.sendInternalError = error => res.status(500).send({status:'error', error});
+        res.sendUnauthorized = error => res.status(401).send({status:"error",error});
+        res.sendForbidden = error => res.status(403).send({status:"error",error});
         next();
     }
      

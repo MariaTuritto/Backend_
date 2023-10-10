@@ -1,7 +1,7 @@
-const form = document.getElementById('login-form');
+const form = document.getElementById('loginform');
 
-form.addEventListener('submit',async e=>{
-    e.preventDefault();
+form.addEventListener('submit',async event=>{
+    event.preventDefault();
     const data = new FormData(form);
     const obj = {};
 

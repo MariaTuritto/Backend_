@@ -3,7 +3,9 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import userManager from "../dao/mongo/managers/userManager.js";
 import authService from "../service/authService.js";
+import cartManager from "../dao/mongo/managers/cartManager.js";
 
+const cartManagerService = new cartManager();
 const usersManagerService = new userManager();
 
 const initializeStrategies = () => {
@@ -28,6 +30,16 @@ const initializeStrategies = () => {
           email,
           password: hashedPassword,
         };
+
+        //Se agrega el método para agregar al usuario su cart:
+        let cart;
+        if(req.cookies['cart']){ //te trae la cart que existe en la cookie
+          cart = req.cookies['cart'];
+        }else{ //Si no existe la cookie, la vamos a crear en la base de datos
+          cartResult = await cartManagerService.createCart();
+          cart = cartResult._id
+        }
+
         const result = await usersManagerService.createUser(newUser);
         return done(null, result);
       }
