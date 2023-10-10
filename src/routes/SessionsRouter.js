@@ -16,7 +16,7 @@ class SessionsRouter extends BaseRouter {
         id: req.user._id,
         role: req.user.role,
         cart: req.user.cart
-      }
+      };
       const token = jwt.sign(tokenizedUser, config.jwt.SECRET, {expiresIn:'1d'});
       res.cookie(config.jwt.COOKIE, token);
       res.clearCookie('cart');

@@ -6,9 +6,9 @@ import passport from 'passport';
 
 
 
-import viewsRouter from './routes/views.routes.js';
-import productsRouter from './routes/products.routes.js';
-import cartsRouter from './routes/carts.routes.js';
+import viewsRouter from './routes/ViewsRouter.js';
+import productsRouter from './routes/ProductsRouter.js';
+import cartsRouter from './routes/CartRouter.js';
 import SessionsRouter from './routes/SessionsRouter.js';
 
 
@@ -24,15 +24,12 @@ const app = express();
 const PORT = config.app.PORT;
 
 const server = app.listen(PORT, () => console.log(`Listening on PORT ${PORT}`));
-
 //connect whit moongoose:
 const connection = mogoose.connect(config.mongo.URL)
 
 app.engine('handlebars', handlebars.engine());
 app.set('views',`${__dirname}/views`);
 app.set('view engine','handlebars');
-
-
 
 //Middlewares
 app.use(express.static(`${__dirname}/public`));
