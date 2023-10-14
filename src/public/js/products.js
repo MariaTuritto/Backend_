@@ -11,7 +11,7 @@ async function addProduct(id) {
 
     else{//en caso de no encontrar cookkie, ya hay un usuario
         const response = await fetch(`/api/carts/products/${id}`,{
-            method:'Put'
+            method:'PUT'
         })
         const result = await response.json();
         console.log(result);

@@ -13,27 +13,16 @@ export default class CartsManager {
     return cartsModel.create({ products: [] });
   };
 
-  updateCart = (cid, newCart) => {
-    return cartsModel.updateOne({ _id: cid }, { $set:newCart });
+  updateCart = (cid, cart) => {
+    return cartsModel.updateOne({ _id: cid }, { $set:cart });
   };
 
-  updateCarttUnits = (cid, pid, newQuantity) => {
-    return cartsModel.updateOne(
-      { _id: cid },
-      { $inc: { "products.[product].quantity": Number(newQuantity) } },
-      { arrayFilters: [{ "element._id": pid }] }
-    );
-  };
 
   deleteCart = (cid) => {
     return cartsModel.deleteOne({ _id: cid });
   };
 
-  
-  deleteAllProducts = (cid) => {
-    return cartsModel.updateOne({ _id: cid }, { $set: { products: [] } });
-  };
-  
+ 
   deleteProductsById = (cid, pid) => {
     return cartsModel.updateOne({_id: cid}, {$pull: {products: {_id: pid}}})
   }

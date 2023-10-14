@@ -17,14 +17,14 @@ init(){
     res.render('login');
 })
 this.get('/',['PUBLIC'], async(req,res)=>{
-  let{page=1,limit=3,sort,order=1,...filters} = req.query;
+  let{page=1,limit=4,sort,order=1,...filters} = req.query;
   const cleanFilters = getValidFilters(filters, 'product');
   let sortResult ={}
   if(sort){
     sortResult[sort]= order
   }
   const paginationResult = await productManagerService.getPaginateProducts(cleanFilters, {page,lean:true,limit,sort:sortResult})
-  console.log(paginationResult);
+
   res.render('productos',{
     products: paginationResult.docs,
     hasNextPage: paginationResult.hasNextPage,

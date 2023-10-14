@@ -8,7 +8,7 @@ export default class BaseRouter {
         this.router = Router();
         this.init();
     }
-    init () {}
+    init(){}
 
     getRouter(){
         return this.router;

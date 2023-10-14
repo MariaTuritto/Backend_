@@ -63,9 +63,9 @@ class cartsRouter extends BaseRouter {
 
 }
 
-const cartsRouter = new cartsRouter();
+const cartRouter = new cartsRouter();
 
-export default cartsRouter.getRouter();
+export default cartRouter.getRouter();
 
 
 

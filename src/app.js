@@ -2,7 +2,7 @@ import express from 'express';
 import mogoose from 'mongoose';
 import handlebars from 'express-handlebars';
 import cookieParser from 'cookie-parser';
-import passport from 'passport';
+// import passport from 'passport';
 
 
 
@@ -41,13 +41,13 @@ app.use(cookieParser());
 
 //inicializamos passport:
 initializeStrategies();
-app.use(passport.initialize());
+// app.use(passport.initialize());
 
 
 //routes 
 app.use('/', viewsRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
-app.use('api/sessions', SessionsRouter);
+app.use('/api/sessions', SessionsRouter);
 
 

@@ -2,12 +2,12 @@
 
 export default class UserManager {
 
-    getUser = () => {
-        return userModel.find().lean();
+    getUser = (params) => {
+        return userModel.find(params);
     }
 
     getUserBy = (params) => {
-        return userModel.findOne(params).lean()
+        return userModel.findOne(params);
 
     }
 

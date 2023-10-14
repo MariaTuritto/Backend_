@@ -4,6 +4,7 @@ import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import userManager from "../dao/mongo/managers/userManager.js";
 import authService from "../service/authService.js";
 import cartManager from "../dao/mongo/managers/cartManager.js";
+import config from "./config.js"
 
 const cartManagerService = new cartManager();
 const usersManagerService = new userManager();
@@ -15,7 +16,8 @@ const initializeStrategies = () => {
       { passReqToCallback: true, usernameField: "email", session: false },
 
       async (req, email, password, done) => {
-        const { firstName, lastName } = req.body;
+        try{
+          const { firstName, lastName } = req.body;
         if (!firstName || !lastName)
           return done(null, false, { message: "Incomplete values" });
         const existsUser = await usersManagerService.getUserBy({ email });
@@ -40,8 +42,15 @@ const initializeStrategies = () => {
           cart = cartResult._id
         }
 
+        newUser.cart = cart;
+
         const result = await usersManagerService.createUser(newUser);
         return done(null, result);
+        }  catch (error) {
+          console.log(error);
+          return done(error);
+        }
+        
       }
     )
   );
@@ -52,14 +61,15 @@ const initializeStrategies = () => {
       { usernameField: "email", session: false },
       async (email, password, done) => {
         try {
-          //   if(email===config.app.ADMIN_EMAIL&&password===config.app.ADMIN_PASSWORD){
-          //     const adminUser = {
-          //         role:'admin',
-          //         id:'0',
-          //         firstName:'admin'
-          //     }
-          //     return done(null,adminUser);
-          // }
+            if(email===config.app.ADMIN_EMAIL&&password===config.app.ADMIN_PASSWORD){
+              const adminUser = {
+                  role:'admin',
+                  id:'0',
+                  firstName:'admin'
+              }
+              return done(null,adminUser);
+          }
+          //Verificar si el usuario existe
           const user = await usersManagerService.getUserBy({ email });
           if (!user)
             return done(null, false, { message: "Inavalid Credentials" });

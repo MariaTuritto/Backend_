@@ -5,8 +5,8 @@ import config from "../config/config.js";
 
 
 class SessionsRouter extends BaseRouter {
-  init(){
-    this.post('/register',['NO:AUTH'],passportCall('register', {strategyType:'LOCALS'}), async(req,res)=>{
+  init(){ 
+    this.post('/register',['NO_AUTH'],passportCall('register', {strategyType:'LOCALS'}), async(req,res)=>{
       res.clearCookie('cart');
       res.sendSuccess('Registered');
     })
