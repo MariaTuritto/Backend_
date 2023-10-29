@@ -7,7 +7,7 @@ export default class UserManager {
     }
 
     getUserBy = (params) => {
-        return userModel.findOne(params);
+        return userModel.findOne(params).lean();
 
     }
 
@@ -16,7 +16,7 @@ export default class UserManager {
     }
 
     updateUser = (id, user) =>{
-        return userModel.updateOne({_id: id}, user);
+        return userModel.updateOne({_id: id}, {$set: user});
     }
 
     deleteUser = (id) => {

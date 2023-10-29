@@ -1,8 +1,9 @@
 import express from 'express';
+import { Server } from "socket.io";
 import mogoose from 'mongoose';
 import handlebars from 'express-handlebars';
 import cookieParser from 'cookie-parser';
-// import passport from 'passport';
+
 
 
 
@@ -18,6 +19,8 @@ import SessionsRouter from './routes/SessionsRouter.js';
 import __dirname from './utils.js';
 import config from './config/config.js';
 import initializeStrategies from './config/passport.config.js'; 
+
+import ChatManager from './dao/mongo/managers/chatManager.js';
 
 const app = express();
 
@@ -41,7 +44,7 @@ app.use(cookieParser());
 
 //inicializamos passport:
 initializeStrategies();
-// app.use(passport.initialize());
+
 
 
 //routes 
@@ -51,3 +54,34 @@ app.use('/api/carts', cartsRouter);
 app.use('/api/sessions', SessionsRouter);
 
 
+
+
+
+//ADD CHAT SOCKET.IO
+const chatManager = new ChatManager();
+const io = new Server(server);
+
+io.on("connection", async (socket) => {
+    console.log("Cliente conectado con id: ", socket.id);
+
+    socket.on("disconnect", () => {
+        console.log("Cliente desconectado");
+      });
+
+      socket.on("newUser", (user) => {
+        console.log("usuario", user);
+        socket.broadcast.emit("broadcast", usuario);
+      });
+
+      socket.on("disconnect", () => {
+        console.log(`Usuario con ID : ${socket.id} esta desconectado `);
+      });
+    
+      socket.on("message", async (info) => {
+        console.log(info);
+        await chatManager.createMessage(info);
+       io.emit("chat", await chatManager.getMessages());
+      })
+
+
+});

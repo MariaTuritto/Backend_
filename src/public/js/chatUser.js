@@ -8,12 +8,12 @@ let user = null;
 
 if (!user) {
   Swal.fire({
-    title: "Wellcome to chat!",
+    title: "Bienvenido a tu espacio de conección!",
     text: "Enter your UserName",
     input: "text",
     inputValidator: (value) => {
       if (!value) {
-        return "you need enter your User";
+        return "Por favor ingresa tu usuario";
       }
     },
   }).then((userName) => {
@@ -60,13 +60,15 @@ chat.innerHTML = chatRender;
 
 })
 
-// socketClient.on("broadcast", (user) => {
-//   Toastify({
-//     text: `${user} Joined to chat`,
-//     duration: 4000,
-//     position: "right",
-//     style: {
-//       background: "linear-gradient(to right, #00b09b, #96c93d)",
-//     },
-//   }).showToast();
-// });
+socketClient.on("broadcast", (user) => {
+  Toastify({
+    text: `${user} Joined to chat`,
+    duration: 5000,
+    position: "right",
+    style: {
+      background: "linear-gradient(to right, #00b09b, #96c93d)",
+    },
+  }).showToast();
+});
+
+

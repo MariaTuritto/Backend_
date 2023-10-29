@@ -1,10 +1,11 @@
-<h1>Let's Talk!</h1>
+<h1>Dejanos tu consulta!</h1>
 <br>
 <br>
+{{!-- FALTA AGREGAR CSS --}}
 <div id="chat-container">
   <h5 id="userName">Username</h5>
   <div id="chat-messages">
-    <div class="message-sender">
+    <div class="message sender">
       <p id="chat"> </p>
     </div>
 
@@ -14,14 +15,13 @@
       type="text"
       name="message"
       id="message"
-      placeholder="Type here your message"
+      placeholder="Type here your message..."
     />
     <input type="submit" value="Send" />
   </form>
-
 </div>
 
-//AGREGAR SWEET ALERT 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script
   type="text/javascript"
   src="https://cdn.jsdelivr.net/npm/toastify-js"

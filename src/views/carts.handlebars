@@ -1,13 +1,14 @@
-<h1>Carts list</h1>
+<h1>Cart</h1>
 
 {{#if cart}}
-    <p> id carrito: {{cart._id}}</p>
-    <br>
-    {{#each cart.products}}
-        <br>
-        <p> id product: {{this.id_product}}</p>
-        <p> quantity product: {{this.quantity}}</p>
-    {{/each}}
+  <p> id carrito: {{cart._id}}</p>
+
+  {{#each cart.products}}
+    <div class="container">
+      <p> Product: {{this.product}}</p>
+      <p> Quantity: {{this.quantity}}</p>
+    </div>
+  {{/each}}
 {{else}}
-    <p>Not found cart</p>
+  <p>Not found cart</p>
 {{/if}}
