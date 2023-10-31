@@ -4,6 +4,7 @@ import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import userManager from "../dao/mongo/managers/userManager.js";
 import authService from "../service/authService.js";
 import cartManager from "../dao/mongo/managers/cartManager.js";
+// import { Strategy as GoogleStrategy } from "passport-google-oauth20" 
 import config from "./config.js"
 
 const cartManagerService = new cartManager();
@@ -87,7 +88,32 @@ const initializeStrategies = () => {
       }
     )
   );
+//LOGICA PARA INICIAR SESION CON GOOGLE
 
+// passport.use('google', new GoogleStrategy(
+//   {
+//       clientID:"682700092334-ls46chnjrekrkvp7lr6907m5posodi02.apps.googleusercontent.com",
+//       clientSecret:"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",
+//       callbackURL:"http://localhost:8080/api/sessions/googlecallback",
+//   },async(accessToken, refreshToken, profile, done) => 
+//   {
+//       try 
+//       {
+//           const { _json } = profile;
+//           const user = await usersManagerService.getUserBy({ email: _json.email });
+    
+//           if (user) return done(null, user); //se encontro en la bd un usuario con el email ingresado.
+//           else 
+//           {
+//               //caso contrario, creo usuario y agrego a bd (o persistencia seleccionada)
+//               const newUser = {firstName: _json.given_name,lastName: _json.family_name,email: _json.email};
+//               const createdUser = await usersServices.create(newUser);
+            
+//               if (createdUser) return done(null, createdUser);
+//               else return done(new Error('Error al crear el usuario'), null);
+//           }
+//       } catch (error){ return done(error, null);}
+//   }));
   passport.use(
     "jwt",
     new JWTStrategy(

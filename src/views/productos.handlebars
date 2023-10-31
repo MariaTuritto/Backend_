@@ -1,59 +1,64 @@
 <h3 class="title">All Products:</h3>
 
 <div class="mainContainer">
-<div> 
-  <h4 class="title">Welcome {{this.user.firstName}}</h4>
+  <div>
+    <h4 class="title">Welcome {{this.user.firstName}}</h4>
 
-  {{#if roleUser}}
-    <p class="subtitle">Your mail is:{{user.email}}</p>
- 
-  <a href="/api/sessions/logout"><button class="btn">logout</button></a>
- {{/if}}
-</div>
+    {{#if roleUser}}
+      <p class="subtitle">Your mail is:{{user.email}}</p>
 
-{{#if category}}
-  <p>Category: {{category}}</p>
-{{/if}}
-
-{{#if status}}
-  <p>Status: {{status}}</p>
-{{/if}}
-<div class="cardConteiner">
-{{#each products}}
-
-  <div class="card" id={{this._id}}>
-    <div class="card-body">
-    <img class="card-img-box" src={{this.thumbnail}} alt={{this.title}}/>
-      
-      <div class="card-content">
-        <p class="card-title">{{this.title}}</p>
-        <p class="card-text">{{this.description}}</p>
-        <p class="card-text">Stock: {{this.stock}}</p>
-        <p class="card-text">Price: ${{this.price}}</p>
-        <button  class="btn btn-addToCart" onclick="addProduct('{{this._id}}')">Agregar al carrio</button>
-      </div>
-    </div>
+      <a href="/api/sessions/logout"><button class="btn">logout</button></a>
+    {{/if}}
   </div>
-{{/each}}
 
-</div>
-<div class="pagination">
-  {{#if hasPrevPage}}
-    <a href="/?page={{prevPage}}"><button class="btn btn-paginate">PrevPage</button></a>
+  {{#if category}}
+    <p>Category: {{category}}</p>
   {{/if}}
 
-  <h5 class="page">{{page}}</h5>
-
-  {{#if hasNextPage}}
-    <a href="/?page={{nextPage}}"><button class="btn btn-paginate">NextPage</button></a>
+  {{#if status}}
+    <p>Status: {{status}}</p>
   {{/if}}
-</div>
+  <div class="cardConteiner">
+    {{#each products}}
 
+      <div class="card" id={{this._id}}>
+        <div class="card-body">
+          <img class="card-img-box" src={{this.thumbnail}} alt={{this.title}} />
 
+          <div class="card-content">
+            <p class="card-title">{{this.title}}</p>
+            <p class="card-text">{{this.description}}</p>
+            <p class="card-text">Stock: {{this.stock}}</p>
+            <p class="card-text">Price: ${{this.price}}</p>
 
-
-
-</div>
-
+          </div>
+        </div>
+      </div>
+      <div>
+        <button
+          class="btn btn-addToCart"
+          onclick="addProduct('{{this._id}}')"
+        >Agregar al carrio</button>
+      </div>
+    {{/each}}
+  </div>
   
+  <div class="pagination">
+    {{#if hasPrevPage}}
+      <a href="/?page={{prevPage}}"><button
+          class="btn btn-paginate"
+        >PrevPage</button></a>
+    {{/if}}
+
+    <h5 class="page">{{page}}</h5>
+
+    {{#if hasNextPage}}
+      <a href="/?page={{nextPage}}"><button
+          class="btn btn-paginate"
+        >NextPage</button></a>
+    {{/if}}
+  </div>
+
+</div>
+
 <script src="/js/products.js"></script>
