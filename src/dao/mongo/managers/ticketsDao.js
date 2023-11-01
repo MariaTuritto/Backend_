@@ -1,6 +1,6 @@
 import ticketModel from "../models/tickets.model.js";
 
-export default class TicketManager {
+export default class ticketDao {
 
     getTicket = (params) => {
         return ticketModel.find(params)

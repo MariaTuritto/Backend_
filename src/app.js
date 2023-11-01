@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 import mogoose from 'mongoose';
 import handlebars from 'express-handlebars';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 
 
@@ -20,7 +21,7 @@ import __dirname from './utils.js';
 import config from './config/config.js';
 import initializeStrategies from './config/passport.config.js'; 
 
-import ChatManager from './dao/mongo/managers/chatManager.js';
+import ChatDao from './dao/mongo/managers/chatDao.js';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.set('views',`${__dirname}/views`);
 app.set('view engine','handlebars');
 
 //Middlewares
+app.use(cors({origin:['http://localhost:8080'],credentials:true}));
 app.use(express.static(`${__dirname}/public`));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -58,7 +60,7 @@ app.use('/api/sessions', SessionsRouter);
 
 
 //ADD CHAT SOCKET.IO
-const chatManager = new ChatManager();
+const chatDao = new ChatDao();
 const io = new Server(server);
 
 io.on("connection", async (socket) => {
@@ -79,8 +81,8 @@ io.on("connection", async (socket) => {
     
       socket.on("message", async (info) => {
         console.log(info);
-        await chatManager.createMessage(info);
-       io.emit("chat", await chatManager.getMessages());
+        await chatDao.createMessage(info);
+       io.emit("chat", await chatDao.getMessages());
       })
 
 

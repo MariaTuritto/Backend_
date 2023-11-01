@@ -1,6 +1,6 @@
 import cartsModel from "../models/cart.model.js";
 
-export default class CartsManager {
+export default class cartsDao {
   
   getCartBy = (cid, options = {}) => {
     if(options.populate){

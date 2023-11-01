@@ -1,14 +1,14 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
-import userManager from "../dao/mongo/managers/userManager.js";
+import userDao from "../dao/mongo/managers/usersDao.js";
 import authService from "../service/authService.js";
-import cartManager from "../dao/mongo/managers/cartManager.js";
+import cartDao from "../dao/mongo/managers/cartsDao.js";
 // import { Strategy as GoogleStrategy } from "passport-google-oauth20" 
 import config from "./config.js"
 
-const cartManagerService = new cartManager();
-const usersManagerService = new userManager();
+const cartService = new cartDao();
+const usersService = new userDao();
 
 const initializeStrategies = () => {
   passport.use(
@@ -21,7 +21,7 @@ const initializeStrategies = () => {
           const { firstName, lastName } = req.body;
         if (!firstName || !lastName)
           return done(null, false, { message: "Incomplete values" });
-        const existsUser = await usersManagerService.getUserBy({ email });
+        const existsUser = await usersService.getUserBy({ email });
         if (existsUser)
           return done(null, false, { message: "User already exist" });
         //Aplicar hash a la constraseña del usuario:
@@ -39,13 +39,13 @@ const initializeStrategies = () => {
         if(req.cookies['cart']){ //te trae la cart que existe en la cookie
           cart = req.cookies['cart'];
         }else{ //Si no existe la cookie, la vamos a crear en la base de datos
-          cartResult = await cartManagerService.createCart();
+          cartResult = await cartService.createCart();
           cart = cartResult._id
         }
 
         newUser.cart = cart;
 
-        const result = await usersManagerService.createUser(newUser);
+        const result = await usersService.createUser(newUser);
         return done(null, result);
         }  catch (error) {
           console.log(error);
@@ -71,7 +71,7 @@ const initializeStrategies = () => {
               return done(null,adminUser);
           }
           //Verificar si el usuario existe
-          const user = await usersManagerService.getUserBy({ email });
+          const user = await usersService.getUserBy({ email });
           if (!user)
             return done(null, false, { message: "Inavalid Credentials" });
           const isValidPassword = await authService.validatePassword(

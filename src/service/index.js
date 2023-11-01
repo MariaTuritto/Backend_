@@ -1,15 +1,15 @@
-import CartsService from './CartsService.js';
-import ProductsService from './ProductsService.js';
-import UsersService from './UsersService.js';
-import TicketService from './TickesService.js';
+import CartsRepository from './repositories/CartsRepository.js';
+import ProductsRepository from './repositories/ProductRepository.js';
+import UsersRepository from './repositories/UsersRepository.js';
+import TicketRepository from './repositories/TicketRepository.js';
 
+import PersistenceFactory from '../dao/persistenceFactory.js';
 
-import CartsManager from '../dao/mongo/managers/cartManager.js';
-import ProductsManager from '../dao/mongo/managers/productManager.js';
-import UserManager from '../dao/mongo/managers/userManager.js';
-import TicketManager from '../dao/mongo/managers/ticketManager.js';
+//TOP LEVEL AWAIT
+const {productsDao, cartsDao, userDao, ticketDao } = await PersistenceFactory.getPersistence();
 
-export const cartsService = new CartsService(new CartsManager());
-export const productsService = new ProductsService(new ProductsManager());
-export const usersService = new UsersService(new UserManager());
-export const ticketService = new TicketService(new TicketManager());
+export const cartsService = new CartsRepository(new cartsDao());
+export const productsService = new ProductsRepository(new productsDao());
+export const usersService = new UsersRepository(new userDao());
+export const ticketService = new TicketRepository(new ticketDao());
+
