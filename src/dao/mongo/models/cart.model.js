@@ -15,13 +15,21 @@ const productSubSchema = new mongoose.Schema({
 },{_id:false});
 
 const schema = new mongoose.Schema({
-    products:  [productSubSchema],
-    default: []
-  }, { timestamps: true });
+  products: {
+    type: [productSubSchema],
+    default:[],
+    required: true
+},
+user: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'Users', 
+    required: true
+}                
+  },
 
-// schema.pre(['find','findOne'],function(){
-//   this.populate('products.product');
-// })
+  { timestamps: true });
+
+
 
 const cartsModel = mongoose.model(collection, schema);
 

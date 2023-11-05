@@ -9,6 +9,7 @@ class SessionsRouter extends BaseRouter {
     this.post('/register',['NO_AUTH'],passportCall('register', {strategyType:'LOCALS'}), async(req,res)=>{
       res.clearCookie('cart');
       res.sendSuccess('Registered');
+      return res.redirect('profile');
     })
     this.post('/login', ['NO_AUTH'], passportCall('login', {strategyType:'LOCALS'}), async(req, res)=> {
       const tokenizedUser = {
@@ -22,8 +23,16 @@ class SessionsRouter extends BaseRouter {
       res.clearCookie('cart');
       res.sendSuccess('Logged In');
     })
-    this.get('/current',['AUTH'],async(req,res)=>{
+
+    this.get('/google', ['NO_AUTH'],passportCall('google', {scope:['profile','email'] ,strategyType:'OAUTH'}), async(req,res)=>{});
+
+    this.get('/googlecallback', ['NO_AUTH'], passportCall('google', {strategyType: 'OAUTH'}), async (req,res)=> {
       console.log(req.user);
+      res.sendStatus(200); 
+    })
+    
+    this.get('/current',['AUTH'],async(req,res)=>{
+ 
       res.sendSuccessWithPayload(req.user);
   })
   }

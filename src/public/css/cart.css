@@ -13,7 +13,7 @@ body
     --color-yellow-one: #f3b916;
 }
 
-.cont_carrito
+.conteiner_cart
 {
     width: 100vw;
     height: 100vh;
@@ -28,18 +28,18 @@ body
     font-family: 'Montserrat', sans-serif;
 }
 
-.cont_carrito>span
+.conteiner_cart>span
 {
     background-color: var(--color-crema-one);
     padding: 3px;
 }
 
-.cont_carrito>span:nth-child(1)
+.conteiner_cart>span:nth-child(1)
 {
     margin: 15px 0 0 0;
 }
 
-.cont_carrito>span>h1 
+.conteiner_cart>span>h1 
 {
    font-size: 2rem;
    font-weight: 600;
@@ -48,7 +48,7 @@ body
    margin: 0;
 }
 
-.cont_carrito>span>p 
+.conteiner_cart>span>p 
 {
     font-size: 0.9rem;
     color: var(--color-black-one);
@@ -56,7 +56,7 @@ body
     margin: 0;
 }
 
-.cont_carrito>div>a>button, .cont_carrito>form>button 
+.conteiner_cart>div>a>button, .conteiner_cart>form>button 
 {
     width: 150px;
     height: 30px;
@@ -72,7 +72,7 @@ body
 
 
 
-.cont_carrito>div>a>button:hover 
+.conteiner_cart>div>a>button:hover 
 {
     transition: background-color ease-in 1s, color ease 1s;
     background-color: var(--color-black-one);

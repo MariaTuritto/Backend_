@@ -1,4 +1,7 @@
+// import CloudStorageService from "../service/CloudStorageService.js";
 import {productsService} from "../service/index.js";
+// import uploader from "../service/uploadService.js";
+
 
 const getPaginateProducts = async (req,res) => {
 
@@ -21,14 +24,13 @@ const getProductsBy = async (req,res) => {
 
 const createProduct = async (req,res) => {
     const {
-        title,
+          title,
           description,
           price,
           code,
           status,
           stock,
-          category,
-          thumbnail
+          category
       } = req.body
   
       if (!title || !description || !price ||  !code || !stock || !category) 
@@ -42,9 +44,18 @@ const createProduct = async (req,res) => {
         status,
         stock,
         category,
-        thumbnail
       }
+      //AGREGAR IMAGENES-PENDIENTE: DONDE METO EL UPLOADER.ARRAY(THUMBNAIL)????
+      //DEBERIA IR EN EL BASE ROUTER??
+
+      // const googleStorageService = new CloudStorageService(file);
+      // const thumbnail = []
       
+      // for(const file of req.files){
+      //   const url = googleStorageService.uploadFileCloudStorage(file);
+      //   thumbnail.push(url)
+      // }
+      // newProduct.thumbnail = thumbnail
       const result = await productsService.createProduct(newProduct)
       res.send({status: "success", payload: result._id});
 };

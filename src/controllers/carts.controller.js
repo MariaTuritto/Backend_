@@ -1,121 +1,176 @@
-import { cartsService, productsService } from "../service/index.js";
+import {
+  cartService,
+  productsService,
+  ticketService,
+} from "../service/index.js";
 
+//falta corregir
 
-
-const getCartBy = async(req,res) => {
-    const {cid} = req.params;
-    const cart = await cartsService.getCartBy({_id: cid});
-    if(!cart)
-        return  res.status(404).send({status:"error", message: "cart not found"});
-    res.send({status: "success", payload: cart})
+const getCartBy = async (req, res) => {
+  const { cid } = req.params;
+  const cart = await cartService.getCartBy({ _id: cid }, { populate: true });
+  if (!cart)
+    return res.status(404).send({ status: "error", message: "cart not found" });
+  res.send({ status: "success", payload: cart });
 };
 
-const createCart = async(req,res)=> {
-    const cart = await cartsService.createCart();
-    res.send({status: "success", payload: cart._id});
-    };
+const createCart = async (req, res) => {
+  const cart = await cartService.createCart();
+  res.send({ status: "success", payload: cart._id });
+};
 
-const updateCart = async(req,res)=>{
-    const {cid,pid} = req.params
-    const cart = await cartsService.findOne({cid,pid})
-    if(!cart) 
-        return res.status(400).send({status: "error", message: "Cart doesn't exist"})
+const updateCart = async (req, res) => {
+  const { cid, pid } = req.params;
+  const cart = await cartService.getCartBy({ cid, pid }, { populate: false });
+  if (!cart)
+    return res
+      .status(400)
+      .send({ status: "error", message: "Cart doesn't exist" });
 
-    const productExists = await productsService.getProductsBy({_id:pid})
-    if(!productExists) 
-        return res.status(400).send({status: "error", message: "Product doesn't exist"})
+  const productExists = await productsService.getProductsBy({ _id: pid });
+  if (!productExists)
+    return res
+      .status(400)
+      .send({ status: "error", message: "Product doesn't exist" });
 
-    const productExistInCart = cart.products.find(item => {
-      return item.product.toString() === pid;
-    })
+  const productExistInCart = cart.products.find((item) => {
+    return item.product.toString() === pid;
+  });
 
-    if (!productExistInCart) {
-        cart.products.push({ product: pid, quantity: 1 })
+  if (!productExistInCart) {
+    cart.products.push({ product: pid, quantity: 1 });
   } else {
-        productExistInCart.quantity++      
+    productExistInCart.quantity++;
   }
-    await cartsService.updateCart(cid, 
-    {
-        products: cart.products,
-        quantity: cart.quantity
-    })
-        res.send({status: "success", payload: cart})
-  }
+  await cartService.updateCart(cid, {
+    products: cart.products,
+    quantity: cart.quantity,
+  });
+  res.send({ status: "success", payload: cart });
+};
+
+const updateInCartProductQuantity = async (req, res) => {
+  const { pid, cid } = req.params;
+  const quantity = req.body;
+
+  const cart = await cartService.getCartBy({ _id: cid });
+  if (!cart)
+    return res.status(400).send({ status: "error", message: "cart not found" });
+
+  const productExists = await productsService.getProductsBy(pid);
+  if (!productExists)
+    return res
+      .status(400)
+      .send({ status: "error", message: "Product does not exist" });
+
+  const productExistInCart = cart.products.find((item) => {
+    return item.product.toString() === pid;
+  });
+  if (!productExistInCart)
+    return res
+      .status(400)
+      .send({ status: "error", message: "Product does not exist in cart" });
+
+  await cartService.updateInCartProductQuantity(cid, pid, quantity);
+  res.send({ status: "success", payload: "Quantity product updated" });
+};
 
 
-const updateCartUser = async (req, res) => {
-    const { pid } = req.params;
-    const cart = await cartsService.getCartBy({ _id: req.user.cart });
-    if (!cart) {
-      return res.status(400).send({ status: "error", message: "Cart not found" });
-    }
-    const product = await productsService.getProductBy({ _id: pid });
-    if (!product)
-      return res
-        .status(400)
-        .send({ status: "error", message: "Product not found" });
-    const productExistsInCart = cart.products.find((item) => {
-      return item.product.toString() === pid;
-    });
-    if (productExistsInCart) {
-      // Verificar si hay en stock y restar
-      if (cart.product.stock > cart.quantity) {
-        cart.quantity += 1;
-        // Restar stock del producto
-        cart.product.stock -= 1;
-      } else {
-        return res
-          .status(400)
-          .send({ status: "error", message: "Not enough stock available." });
-      }
+const addProdToCart = async (req,res) => {
+
+    const {cid} = req.params
+    const newProducts = req.body
+    const cart = await cartService.getCartBy({_id: cid},{populate:false})
+    if (!cart) return res.status(400).send({status: "error", message: "Cart not found"})
+    
+    await cartService.updateCart(cid,newProducts);
+    res.send({status: "success", payload: "Cart updated with new products" });
+  
+  } 
+
+const purchaseCart = async(req,res) => {
+  const {cid} = req.params
+
+  const cart = await cartService.getCartBy({_id:cid}, {populate:true});
+  if (!cart) return res.status(400).send({status: "error", message: "Cart not found"})
+
+  const purchaseProd = []
+  let sumTotal = 0
+
+  for (const item of cart.products) {
+    let product = item.product
+    let quantity = item.quantity
+    let stock = product.stock
+    let amount = product.price
+
+    if (quantity <= stock) {
+      let newStock = stock - quantity
+
+      purchaseProd.push(item);
+      console.log(`Producto ${product.code} agregado exitosamente`);
+
+      sumTotal += amount
+
     } else {
-      // Si el producto no está en el carrito, agrégalo con una cantidad de 1
-      if (product.stock > 0) {
-        cart.quantity += 1;
-  
-        cart.products.push({ product: pid, quantity: 1 });
-        // Restar del stock del producto
-      } else {
-        return res
-          .status(400)
-          .send({ status: "error", message: "Product out of stock." });
-      }
+      console.log(`El producto ${product.code} esta agotado`);
     }
-  
-    await cartsService.updateCart(req.user.cart, {
-      products: cart.products,
-      quantity: cart.quantity,
-    });
-  
-    res.send({ status: "success", message: "Cart updated successfully" });
-  };
+  }
+  const codeTicket = Date.now().toString(15);
 
-const deleteCart = async(req, res) => {
-    const { cid } = req.params;
-    const cart = await cartsService.findOne({ _id: cid });
-    if (!cart)
-        return res.status(400).send({ status: "error", message: "cart not found" });
-    await cartsService.deleteCart(cid);
-    res.send({ status: "success", message: "cart deleted successfully" });
+  const newTicket = {
+    code: codeTicket,
+    amount: sumTotal,
+    purchaser: "correocliente@gmail.com"
+  }
+  console.log(newTicket);
+
+  const ticketResult = await ticketService.createTicket(newTicket)
+  if (ticketResult)
+  res.status(200).send({status: "success", message: "Your order has been purchased!"})
 }
 
-const deleteProductsById = async (req,res) => {
-    const {cid, pid} = req.params;
-    const productInCart = await cartsService.findOne({cid, pid});
-    if(!productInCart)
-        return res.status(400).send({status:"error", message:"product in cart not found"});
-    await cartsService.deleteProductsById(cid,pid);
-    res.send({status:"success", message: "product in cart deleted successfully"})
 
-}
+const deleteProdFromCart = async (req, res) => {
+  const { cid, pid } = req.params;
 
+  const cart = await cartService.getCartBy({ _id: cid });
+  if (!cart)
+    return res.status(400).send({ status: "error", message: "cart not found" });
+
+  const productExists = await productsService.getProductsBy(pid);
+  if (!productExists)
+    return res
+      .status(400)
+      .send({ status: "error", message: "Product does not exist" });
+
+  const productExistInCart = cart.products.find((item) => {
+    return item.product.toString() === pid;
+  });
+  if (!productExistInCart)
+    return res
+      .status(400)
+      .send({ status: "error", message: "Product does not exist in cart" });
+
+  await cartService.deleteProdFromCart(cid, pid);
+  res.send({ status: "success", message: "Product deleted" });
+};
+
+const deleteCart = async (req, res) => {
+  const { cid } = req.params;
+  const cart = await cartService.findOne({ _id: cid });
+  if (!cart)
+    return res.status(400).send({ status: "error", message: "cart not found" });
+  await cartService.deleteCart(cid);
+  res.send({ status: "success", message: "cart deleted successfully" });
+};
 
 export default {
-    getCartBy,
-    createCart,
-    updateCart,
-    updateCartUser,
-    deleteCart,
-    deleteProductsById
-
-}
+  getCartBy,
+  createCart,
+  updateCart,
+  updateInCartProductQuantity,
+  addProdToCart,
+  purchaseCart,
+  deleteProdFromCart,
+  deleteCart,
+};

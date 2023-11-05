@@ -2,7 +2,7 @@ import passport from "passport";
 
 const passportCall = (strategy,options={}) => {
     return (req, res, next) => {
-        passport.authenticate(strategy, async(error, user, info) => {
+        passport.authenticate(strategy,options, async(error, user, info) => {
             if(error) return next(error);
             if(!options.strategyType){
                 return res.sendInternalError('strategyType not defined')
@@ -17,6 +17,9 @@ const passportCall = (strategy,options={}) => {
                     case 'JWT': {
                         req.user = null;
                         return next();
+                    }
+                    case 'GOOGLE': {
+                        return res.status(401).send({status: "error", error: info.message ? info.message : info.toString()})
                     }
                 }
             }

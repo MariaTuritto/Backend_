@@ -1,23 +1,30 @@
-export default class CartsService {
-    constructor(manager) {
-        this.manager = manager 
+export default class CartRepository {
+    constructor(dao) {
+        this.dao = dao;
     }
 
-    getCartBy = () => {
-        return this.manager.getCartBy(cid, (options = {}));
+    getCartBy = (cid, options) => {
+        return this.dao.getCartBy(cid, (options = {}));
       };
     
-      createCart = () => {
-        return this.manager.createCart();
+      createCart = (user) => {
+        return this.dao.createCart(user);
       };
     
-      updateCart = () => {
-        return this.manager.updateCart(cid,cart)
+      updateCart = (cid, cart) => {
+        return this.dao.updateCart(cid,cart)
       };
-    
-    
-      deleteCart = () => {
-        return this.manager.deleteCart(cid)
+      
+      updateInCartProductQuantity = (cid,pid,quantity)=>{
+        return this.dao.updateInCartProductQuantity(cid,pid,quantity)
+      }
+      
+      deleteProdFromCart= (cid,pid) =>{
+        return this.dao.deleteProdFromCart(cid,pid)
+
+      }
+      deleteCart = (cid) => {
+        return this.dao.deleteCart(cid)
       };
     
 }

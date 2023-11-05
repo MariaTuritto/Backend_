@@ -1,10 +1,10 @@
 import BaseRouter from "./BaseRouter.js"
-import productManager from "../dao/mongo/managers/productManager.js";
+import productDao from "../dao/mongo/managers/productsDao.js";
 import { getValidFilters } from "../utils.js";
 
 
 
-const productManagerService = new productManager();
+const productService = new productDao();
 
 
 //ACTUALIZACIÓN CON BASEROUTER
@@ -23,7 +23,7 @@ this.get('/',['PUBLIC'], async(req,res)=>{
   if(sort){
     sortResult[sort]= order
   }
-  const paginationResult = await productManagerService.getPaginateProducts(cleanFilters, {page,lean:true,limit,sort:sortResult})
+  const paginationResult = await productService.getPaginateProducts(cleanFilters, {page,lean:true,limit,sort:sortResult})
 
   res.render('productos',{
     products: paginationResult.docs,

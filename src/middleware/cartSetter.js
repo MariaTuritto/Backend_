@@ -1,10 +1,10 @@
-import CartsManager from "../dao/mongo/managers/cartManager.js";
+import CartsDao from "../dao/mongo/managers/cartsDao.js";
 
-const cartsManagerService = new CartsManager()
+const cartsService = new CartsDao()
 
 const cartSetter = async (req,res,next) => {
     if(!req.cookies.cart&&!req.user) {
-        const cart = await cartsManagerService.createCart()
+        const cart = await cartsService.createCart()
         res.cookie('cart', cart._id.toString())
     }
     next()

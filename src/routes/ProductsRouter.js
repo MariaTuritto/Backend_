@@ -1,8 +1,6 @@
 import BaseRouter from './BaseRouter.js';
 import productsController from '../controllers/products.controller.js';
 
-
-
 class ProductsRouter extends BaseRouter {
   init(){
     this.get('/',['PUBLIC'], productsController.getPaginateProducts);

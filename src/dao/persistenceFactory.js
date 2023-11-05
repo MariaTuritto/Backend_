@@ -19,11 +19,11 @@ export default class PersistenceFactory {
                 break;
             }
                 
-            // case 'FS': {
-            //     productsDao = (await import('./fileSystem/managers/productsDao.js')).default;
-            //     cartsDao = (await import('./fileSystem/managers/cartsDao.js')).default;
-            //     break;
-            // }  
+            case 'FS': {
+                productsDao = (await import('./fileSystem/managers/productsDao.js')).default;
+                cartsDao = (await import('./fileSystem/managers/cartsDao.js')).default;
+                break;
+            }  
         }
         return{
             productsDao,

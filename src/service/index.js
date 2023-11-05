@@ -8,8 +8,8 @@ import PersistenceFactory from '../dao/persistenceFactory.js';
 //TOP LEVEL AWAIT
 const {productsDao, cartsDao, userDao, ticketDao } = await PersistenceFactory.getPersistence();
 
-export const cartsService = new CartsRepository(new cartsDao());
+export const cartService = new CartsRepository(new cartsDao());
 export const productsService = new ProductsRepository(new productsDao());
-export const usersService = new UsersRepository(new userDao());
+export const userService = new UsersRepository(new userDao());
 export const ticketService = new TicketRepository(new ticketDao());
 

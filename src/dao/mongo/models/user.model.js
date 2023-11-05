@@ -10,11 +10,12 @@ const schema = new mongoose.Schema({
         role:
         {
             type:String,
+            enum:['user', 'admin'],
             default: 'user'
         },
         cart: {
             type: mongoose.SchemaTypes.ObjectId,
-            ref: 'carts'
+            ref: 'Carts'
         }
 
 

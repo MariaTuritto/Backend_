@@ -1,10 +1,11 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import userDao from "../dao/mongo/managers/usersDao.js";
 import authService from "../service/authService.js";
 import cartDao from "../dao/mongo/managers/cartsDao.js";
-// import { Strategy as GoogleStrategy } from "passport-google-oauth20" 
+
 import config from "./config.js"
 
 const cartService = new cartDao();
@@ -34,7 +35,7 @@ const initializeStrategies = () => {
           password: hashedPassword,
         };
 
-        //Se agrega el método para agregar al usuario su cart:
+        //Se agrega el método para agregar al usuario su cart temporal:
         let cart;
         if(req.cookies['cart']){ //te trae la cart que existe en la cookie
           cart = req.cookies['cart'];
@@ -66,7 +67,9 @@ const initializeStrategies = () => {
               const adminUser = {
                   role:'admin',
                   id:'0',
-                  firstName:'admin'
+                  firstName:'admin',
+                  lastName:'lastAdmin',
+                  email:'correoadmin@correo.com'
               }
               return done(null,adminUser);
           }
@@ -89,31 +92,47 @@ const initializeStrategies = () => {
     )
   );
 //LOGICA PARA INICIAR SESION CON GOOGLE
+passport.use('google', new GoogleStrategy(
+  {
+      clientID:"604613985429-tsv68l2q5uhm6k8gafkigvuged903kk5.apps.googleusercontent.com",
+      clientSecret:"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",
+      callbackURL:"http://localhost:8080/api/sessions/googlecallback",
+      passReqToCallback:true
+  },async(req,accessToken, refreshToken, profile, done) => {
+      console.log(profile);
+      try 
+      {
+          const { _json } = profile;
+          const user = await usersService.getUserBy({ email: _json.email });
+          if (user) return done(null, user); //si existe el usuario, devuelvelo
+          else 
+          { //caso contrario, creo usuario y agrego a bd (o persistencia seleccionada)
+              const newUser = {
+                firstName: _json.given_name,
+                lastName: _json.family_name,
+                email: _json.email
+              };
+              //AQUI REPLICAMOS LA CREACIÓN DE UN CARRITO PARA EL USUARIO AL CREARSE EL REGISTRO DEL USUARIO CON GOOGLE
+              let cart;
 
-// passport.use('google', new GoogleStrategy(
-//   {
-//       clientID:"682700092334-ls46chnjrekrkvp7lr6907m5posodi02.apps.googleusercontent.com",
-//       clientSecret:"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",
-//       callbackURL:"http://localhost:8080/api/sessions/googlecallback",
-//   },async(accessToken, refreshToken, profile, done) => 
-//   {
-//       try 
-//       {
-//           const { _json } = profile;
-//           const user = await usersManagerService.getUserBy({ email: _json.email });
-    
-//           if (user) return done(null, user); //se encontro en la bd un usuario con el email ingresado.
-//           else 
-//           {
-//               //caso contrario, creo usuario y agrego a bd (o persistencia seleccionada)
-//               const newUser = {firstName: _json.given_name,lastName: _json.family_name,email: _json.email};
-//               const createdUser = await usersServices.create(newUser);
-            
-//               if (createdUser) return done(null, createdUser);
-//               else return done(new Error('Error al crear el usuario'), null);
-//           }
-//       } catch (error){ return done(error, null);}
-//   }));
+              if(req.cookies['cart']){//Obtener la que ya está de la cookie
+                  cart = req.cookies['cart'];
+              }else{ //Crear una nueva librería en la base de datos
+                  cartResult = await cartService.createcart();
+                  cart = cartResult._id
+              }
+              newUser.cart = cart;
+
+              const createdUser = await usersService.createUser(newUser);
+
+              if (createdUser) return done(null, createdUser);
+                else return done(new Error('Error al crear el usuario'), null);
+          }
+      } catch (error){ return done(error, null);}
+  }));
+
+
+
   passport.use(
     "jwt",
     new JWTStrategy(

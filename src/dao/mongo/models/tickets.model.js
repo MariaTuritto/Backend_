@@ -1,7 +1,5 @@
 import mongoose from "mongoose";    
 
-const codeTicket = () => Date.now().toString(15);
-
 const collection = "tickets";
 
 const cartSubSchema = new mongoose.Schema({
@@ -16,26 +14,27 @@ const schema = new mongoose.Schema({
         type: String,
         unique: true,
         required: true,
-        codeTicket,
+       
     },
     
     purchase_datetime : {
         type: Date,
+        unique: true,
         required: true,
+        default: Date.now()
     },
     purchaser: {
         type: String,
+        required: true,
+      },
+    amount: {
+        type: Number,
         required: true,
     },
     carts: {
         type:[cartSubSchema],
     }
-},
-{
-    timestamps: true,
-}
-
-);
+    }, {timestamps: true});
 
 schema.pre(["find", "findOne"], function() {
     this.populate("carts.cart")
