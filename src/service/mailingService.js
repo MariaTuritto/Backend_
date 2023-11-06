@@ -7,8 +7,8 @@ export default class MailingService {
             service:'gmail',
             port:587,
             auth:{
-                user:GMAIL_USER,
-                pass:GMAIL_PASSWORD
+                user:process.env.GMAIL_USER,
+                pass:process.env.GMAIL_PASSWORD
             }
         })
     }

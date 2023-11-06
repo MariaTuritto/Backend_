@@ -1,40 +1,95 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import BaseRouter from "./BaseRouter.js";
 import passportCall from "../middleware/passportCall.js";
 import config from "../config/config.js";
-
+// import MailingService from "./service/mailingService.js";
 
 class SessionsRouter extends BaseRouter {
-  init(){ 
-    this.post('/register',['NO_AUTH'],passportCall('register', {strategyType:'LOCALS'}), async(req,res)=>{
-      res.clearCookie('cart');
-      res.sendSuccess('Registered');
-      return res.redirect('profile');
-    })
-    this.post('/login', ['NO_AUTH'], passportCall('login', {strategyType:'LOCALS'}), async(req, res)=> {
-      const tokenizedUser = {
-        name: `${req.user.firstName} ${req.user.lastName}`,
-        id: req.user._id,
-        role: req.user.role,
-        cart: req.user.cart
-      };
-      const token = jwt.sign(tokenizedUser, config.jwt.SECRET, {expiresIn:'1d'});
-      res.cookie(config.jwt.COOKIE, token);
-      res.clearCookie('cart');
-      res.sendSuccess('Logged In');
-    })
+  init() {
+    this.post(
+      "/register",
+      ["NO_AUTH"],
+      passportCall("register", { strategyType: "LOCALS" }),
+      async (req, res) => {
+        res.clearCookie("cart");
+        res.sendSuccess("Registered");
+        return res.redirect("profile");
+      }
+    );
+    this.post(
+      "/login",
+      ["NO_AUTH"],
+      passportCall("login", { strategyType: "LOCALS" }),
+      async (req, res) => {
+        const tokenizedUser = {
+          name: `${req.user.firstName} ${req.user.lastName}`,
+          id: req.user._id,
+          role: req.user.role,
+          cart: req.user.cart,
+        };
+        const token = jwt.sign(tokenizedUser, config.jwt.SECRET, {
+          expiresIn: "1d",
+        });
+        res.cookie(config.jwt.COOKIE, token);
+        res.clearCookie("cart");
+        res.sendSuccess("Logged In");
+      }
+    );
 
-    this.get('/google', ['NO_AUTH'],passportCall('google', {scope:['profile','email'] ,strategyType:'OAUTH'}), async(req,res)=>{});
+    this.get(
+      "/google",
+      ["NO_AUTH"],
+      passportCall("google", {
+        scope: ["profile", "email"],
+        strategyType: "OAUTH",
+      }),
+      async (req, res) => {}
+    );
 
-    this.get('/googlecallback', ['NO_AUTH'], passportCall('google', {strategyType: 'OAUTH'}), async (req,res)=> {
-      console.log(req.user);
-      res.sendStatus(200); 
-    })
-    
-    this.get('/current',['AUTH'],async(req,res)=>{
- 
+    this.get(
+      "/googlecallback",
+      ["NO_AUTH"],
+      passportCall("google", { strategyType: "OAUTH" }),
+      async (req, res) => {
+        console.log(req.user);
+
+      //   //APLICANDO NODE MAILER:
+      //   this.get("/mails", async (req, res) => {
+      //     const mailService = new MailingService();
+      //     //ENVIAMOS CORREO:
+      //     const mailRequest = {
+      //       from: "YO MISMO",
+      //       to: ["turittomaria@gmail.com"], //recuerda incrustar en html el css
+      //       subject: "PRUEBA MAIL",
+      //       html: `
+      // <div>
+      // <h1>Bienvenido a Myecommerce</h1>
+      // <br/>
+      // <p>Gracias por suscribirte, te damos la bienvenida con un cupón de descuento en tu próxima compra</p>
+      // <br/>
+      // <imag src="cid:mailing"/>
+      // </div>
+      // `,
+      //       attachments: [
+      //         {
+      //           filename: "mailing.png",
+      //           path: __dirname + "img/mailing.png",
+      //           cid: "mailing",
+      //         },
+      //       ],
+      //     };
+
+      //     const mailResult = await mailService.sendMail(mailRequest);
+
+      //     console.log(mailResult);
+       
+      //   res.sendStatus(200);
+      // });
+      });
+
+    this.get("/current", ["AUTH"], async (req, res) => {
       res.sendSuccessWithPayload(req.user);
-  })
+    });
   }
 }
 
@@ -42,61 +97,3 @@ const sessionsRouter = new SessionsRouter();
 
 export default sessionsRouter.getRouter();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import { Router } from "express";
-// // import passport from "passport";
-// import jwt from "jsonwebtoken";
-// import userManager from "../dao/mongo/managers/userManager.js"
-// import auth from "../service/auth.js";
-// import { validateJWT } from "../middleware/jwtExtractor.js";
-
-
-// const router = Router();
-// const userManagerService = new userManager();
-
-// router.post('/login', async (req,res)=>{
-//   const {email, password} = req.body;
-//   if (!email || !password)
-//   return res.status(400).send({status:"error", error: "Incomplete values" });
-//   const user = await userManagerService.getUserBy({email})
-//   if(!user) return res.status(400).send({status:"error", error: "Incorrect Credential"});
-//   const isValidPassword = await auth.validatePassword(
-//     password,
-//     user.password
-//   );
-//   if (!isValidPassword) return res.status(400).send({status:"error", message: "Incorrect Credential"});
-//   //SI SE LOGUEO CORRECTAMENTE, SE CREARÁ UN TOKEN:
-//   const token = jwt.sign({id: user._id, email:user.email, role: user.role, name: user.firstName}, 
-//     "secretjwt", 
-//     {expiresIn:'1d'});
-//     res.send({status:"succes", token})
-// })
-
-// router.get('/profileInfo', validateJWT, async (req, res) => {
-//   //Endpoint que me va a halar la info del token 
-//   console.log(req.user);
-//   res.send({status: 'succes', payload: req.user})
-// })
-
-// export default router;

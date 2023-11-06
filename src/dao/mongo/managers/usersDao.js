@@ -6,8 +6,8 @@ export default class userDao {
         return userModel.find(params);
     }
 
-    getUserBy = (params) => {
-        return userModel.findOne(params).lean();
+    getUserBy = (uid) => {
+        return userModel.findOne(uid).lean();
 
     }
 
@@ -15,11 +15,11 @@ export default class userDao {
         return userModel.create(user)
     }
 
-    updateUser = (id, user) =>{
-        return userModel.updateOne({_id: id}, {$set: user});
+    updateUser = (uid, user) =>{
+        return userModel.updateOne({_id: uid}, {$set: user});
     }
 
-    deleteUser = (id) => {
-        return userModel.deleteOne({_id:id})
+    deleteUser = (uid) => {
+        return userModel.deleteOne({_id:uid})
     }
 }

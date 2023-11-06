@@ -1,5 +1,5 @@
 
-import ticketsModel from '../models/tickets.model';
+import ticketsModel from '../models/tickets.model.js';
 
 export default class ticketDao {
 

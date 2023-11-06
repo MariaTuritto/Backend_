@@ -20,11 +20,11 @@ const schema = new mongoose.Schema({
     default:[],
     required: true
 },
-user: {
-    type: mongoose.SchemaTypes.ObjectId,
-    ref: 'Users', 
-    required: true
-}                
+// user: {
+//     type: mongoose.SchemaTypes.ObjectId,
+//     ref: 'Users', 
+//     required: true
+// }                
   },
 
   { timestamps: true });
