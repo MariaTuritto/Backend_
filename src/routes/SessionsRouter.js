@@ -34,26 +34,7 @@ class SessionsRouter extends BaseRouter {
         res.clearCookie("cart");
         res.sendSuccess("Logged In");
       }
-    );
-
-    this.get(
-      "/google",
-      ["NO_AUTH"],
-      passportCall("google", {
-        scope: ["profile", "email"],
-        strategyType: "OAUTH",
-      }),
-      async (req, res) => {}
-    );
-
-    this.get(
-      "/googlecallback",
-      ["NO_AUTH"],
-      passportCall("google", { strategyType: "OAUTH" }),
-      async (req, res) => {
-        console.log(req.user);
-
-      //   //APLICANDO NODE MAILER:
+         //   //APLICANDO NODE MAILER:
       //   this.get("/mails", async (req, res) => {
       //     const mailService = new MailingService();
       //     //ENVIAMOS CORREO:
@@ -82,9 +63,41 @@ class SessionsRouter extends BaseRouter {
       //     const mailResult = await mailService.sendMail(mailRequest);
 
       //     console.log(mailResult);
-       
-      //   res.sendStatus(200);
+    
+    
       // });
+    );
+
+    this.get(
+      "/google",
+      ["NO_AUTH"],
+      passportCall("google", {
+        scope: ["profile", "email"],
+        strategyType: "OAUTH",
+      }),
+      async (req, res) => {}
+    );
+
+    this.get(
+      "/googlecallback",
+      ["NO_AUTH"],
+      passportCall("google", { strategyType: "OAUTH" }),
+      async (req, res) => {
+        const tokenizedUser = {
+          name: `${req.user.firstName} ${req.user.lastName}`,
+          id: req.user._id,
+          role: req.user.role,
+          cart: req.user.cart,
+        };
+        const token = jwt.sign(tokenizedUser, config.jwt.SECRET, {
+          expiresIn: "1d",
+        });
+        res.cookie(config.jwt.COOKIE, token);
+        res.clearCookie("cart");
+        res.sendSuccess("Logged In");
+        console.log(req.user);
+
+   
       });
 
     this.get("/current", ["AUTH"], async (req, res) => {
