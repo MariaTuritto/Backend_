@@ -1,6 +1,6 @@
-// import CloudStorageService from "../service/CloudStorageService.js";
+import CloudStorageService from "../service/CloudStorageService.js";
 import {productsService} from "../service/index.js";
-// import uploader from "../service/uploadService.js";
+import uploader from "../service/uploadService.js";
 
 
 const getPaginateProducts = async (req,res) => {
@@ -11,6 +11,7 @@ const getPaginateProducts = async (req,res) => {
 }
 
 const getProductsBy = async (req,res) => {
+
     const id = parseInt(req.params.pid);
     const product = await productsService.getProductsBy(id);
     if(product === 'Not found') {
@@ -22,7 +23,8 @@ const getProductsBy = async (req,res) => {
     }
 };
 
-const createProduct = async (req,res) => {
+const createProduct = (uploader.array('thumbnail'), async (req,res) => {
+    
     const {
           title,
           description,
@@ -30,7 +32,7 @@ const createProduct = async (req,res) => {
           code,
           status,
           stock,
-          category
+          category,
       } = req.body
   
       if (!title || !description || !price ||  !code || !stock || !category) 
@@ -43,22 +45,26 @@ const createProduct = async (req,res) => {
         code,
         status,
         stock,
-        category,
+        category
       }
-      //AGREGAR IMAGENES-PENDIENTE: DONDE METO EL UPLOADER.ARRAY(THUMBNAIL)????
-      //DEBERIA IR EN EL BASE ROUTER??
-
-      // const googleStorageService = new CloudStorageService(file);
-      // const thumbnail = []
+      //NO ME AGREGA LOS PRODUCTOS AL SERVIDOR-ERROR INCOMPLETE VALUES EN POSTMAN 
+      //DONDE METO EL UPLOADER.ARRAY(THUMBNAIL)????
+      //NO SÉ SI ASI ES LO CORRECTO :
+      const googleStorageService = new CloudStorageService(file);
+     
+      const thumbnail = []
       
-      // for(const file of req.files){
-      //   const url = googleStorageService.uploadFileCloudStorage(file);
-      //   thumbnail.push(url)
-      // }
-      // newProduct.thumbnail = thumbnail
+      for(const file of req.files){
+        const url = await googleStorageService.uploadFileCloudStorage(file);
+        thumbnail.push(url)
+      }
+      console.log(thumbnail)
+
+      newProduct.thumbnail = thumbnail
       const result = await productsService.createProduct(newProduct)
       res.send({status: "success", payload: result._id});
-};
+      res.sendStatus(200)
+});
 
 const updateProduct = async (req,res)=>{
     const {pid} = req.params;

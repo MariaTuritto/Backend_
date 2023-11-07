@@ -7,7 +7,7 @@ class ProductsRouter extends BaseRouter {
 
     this.get('/:pid', ['PUBLIC'], productsController.getProductsBy);
     
-    this.post('/', ['ADMIN'], productsController.createProduct)
+    this.post('/', ['PUBLIC'], productsController.createProduct)//lo pase a public para cargar a CLOUDSTORAGE LOS PRODUCTS
 
     this.put('/:pid', ['ADMIN'], productsController.updateProduct)
 

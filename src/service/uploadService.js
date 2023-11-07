@@ -1,5 +1,6 @@
 import multer from "multer";
 import __dirname from "../utils.js";
+
 //ALMACENAMIENTO PREVIO EN DISCO
 // const storage = multer.diskStorage({
 //     //Aquí tenemos el QUÉ, el CÓMO y el DÓNDE se guarda
@@ -11,7 +12,7 @@ import __dirname from "../utils.js";
 //     }
 // })
 
-//ALMACENAMIENTO EN GOOGLE
+//ALMACENAMIENTO EN GOOGLE:
 //Multer ya no tiene presencia en archivo, Sólo en MEMORIA
 const storage = multer.memoryStorage();
 

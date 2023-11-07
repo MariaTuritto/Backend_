@@ -15,8 +15,6 @@ import SessionsRouter from './routes/SessionsRouter.js';
 
 
 
-
-
 import __dirname from './utils.js';
 import config from './config/config.js';
 import initializeStrategies from './config/passport.config.js'; 
