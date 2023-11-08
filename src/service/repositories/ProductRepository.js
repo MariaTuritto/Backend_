@@ -4,27 +4,27 @@ export default class ProductRepository
         this.dao = dao;
     }
 
-    getProducts = () => {
+    getProducts = (params) => {
         return this.dao.getProducts(params);
       };
     
-      getPaginateProducts = () => {
+      getPaginateProducts = (params, paginateOptions) => {
         return this.dao.getPaginateProducts(params, paginateOptions);
       };
     
-      getProductsBy = () => {
+      getProductsBy = (pid) => {
         return this.dao.getProductsBy(pid);
       };
     
-      addProducts = () => {
+      addProducts = (product) => {
         return this.dao.addProducts(product);
       };
     
-      updateProduct = () => {
+      updateProduct = (pid,product) => {
         return this.dao.updateProduct(pid, product);
       };
     
-      deleteProduct = () => {
+      deleteProduct = (pid) => {
         return this.dao.deleteProduct(pid);
       };
 }

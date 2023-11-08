@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@faker-js/faker": "^8.2.0",
     "@google-cloud/storage": "^7.5.0",
     "bcrypt": "^5.1.1",
     "commander": "^11.0.0",

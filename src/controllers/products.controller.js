@@ -1,6 +1,7 @@
 import CloudStorageService from "../service/CloudStorageService.js";
 import {productsService} from "../service/index.js";
 import uploader from "../service/uploadService.js";
+import { generateProducts } from "../mocks/products.js";
 
 
 const getPaginateProducts = async (req,res) => {
@@ -22,8 +23,7 @@ const getProductsBy = async (req,res) => {
         res.status(400).json({message:'Product not found'})
     }
 };
-
-const createProduct = (uploader.array('thumbnail'), async (req,res) => {
+const createProduct =  (uploader.array('thumbnail'), async (req, res) => {
     
     const {
           title,
@@ -34,10 +34,10 @@ const createProduct = (uploader.array('thumbnail'), async (req,res) => {
           stock,
           category,
       } = req.body
-  
+
       if (!title || !description || !price ||  !code || !stock || !category) 
-        return res.status(400).send({status: "error", message: "Incomplete values" })
-      
+      return res.status(400).send({status: "error", message: "Incomplete values" })
+             
       const newProduct = {
         title,
         description,
@@ -47,9 +47,7 @@ const createProduct = (uploader.array('thumbnail'), async (req,res) => {
         stock,
         category
       }
-      //NO ME AGREGA LOS PRODUCTOS AL SERVIDOR-ERROR INCOMPLETE VALUES EN POSTMAN 
-      //DONDE METO EL UPLOADER.ARRAY(THUMBNAIL)????
-      //NO SÉ SI ASI ES LO CORRECTO :
+    
       const googleStorageService = new CloudStorageService(file);
      
       const thumbnail = []
@@ -59,12 +57,16 @@ const createProduct = (uploader.array('thumbnail'), async (req,res) => {
         thumbnail.push(url)
       }
       console.log(thumbnail)
-
+      
       newProduct.thumbnail = thumbnail
+      console.log(newProduct)
       const result = await productsService.createProduct(newProduct)
       res.send({status: "success", payload: result._id});
       res.sendStatus(200)
 });
+
+
+
 
 const updateProduct = async (req,res)=>{
     const {pid} = req.params;
@@ -105,10 +107,21 @@ const updateProduct = async (req,res)=>{
     
   }
 
+
+  const mockingProducts = async (req, res) => {
+    const products = [];
+    for (let i = 0; i < 100; i++) {
+      const mockProduct = generateProducts();
+      products.push(mockProduct);
+    }
+    return res.send({ status: "success", payload: products });
+  };
+
 export default {
     getPaginateProducts,
     getProductsBy,
     createProduct,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    mockingProducts
 }
