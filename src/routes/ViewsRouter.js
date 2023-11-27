@@ -1,45 +1,56 @@
-import BaseRouter from "./BaseRouter.js"
-import productDao from "../dao/mongo/managers/productsDao.js";
-import { getValidFilters } from "../utils.js";
+import BaseRouter from "./BaseRouter.js";
+import viewsController from "../controllers/viewsController.js";
 
-
-
-const productService = new productDao();
-
-
-//ACTUALIZACIÓN CON BASEROUTER
+//ACTUALIZACIÓN CON BASEROUTER y VIEWSCONTROLLER
 class ViewsRouter extends BaseRouter {
-init(){
-  this.get('/register',['NO_AUTH'], async(req,res)=>{
-    res.render('register')
-  })
-  this.get('/login',['NO_AUTH'],async(req,res)=>{
-    res.render('login');
-})
-this.get('/',['PUBLIC'], async(req,res)=>{
-  let{page=1,limit=4,sort,order=1,...filters} = req.query;
-  const cleanFilters = getValidFilters(filters, 'product');
-  let sortResult ={}
-  if(sort){
-    sortResult[sort]= order
-  }
-  const paginationResult = await productService.getPaginateProducts(cleanFilters, {page,lean:true,limit,sort:sortResult})
+  init() {
+    this.get("/register", ["NO_AUTH"], viewsController.register);
 
-  res.render('productos',{
-    products: paginationResult.docs,
-    hasNextPage: paginationResult.hasNextPage,
-    hasPrevPage: paginationResult.hasPrevPage,
-    nextPage: paginationResult.nextPage,
-    prevPage: paginationResult.prevPage,
-    page: paginationResult.page,
-  });
-});
-}
+    this.get("/login", ["NO_AUTH"], viewsController.login);
+
+    this.get("/profile", ["AUTH"], viewsController.profile);
+
+    this.get("/products", ["PUBLIC"], viewsController.products);
+
+    this.get("/", ["PUBLIC"], async (req, res) => {
+      return res.render("home");
+    });
+    
+    this.get("/cart", ["AUTH"], viewsController.cart);
+
+    this.get("/chat", ["PUBLIC"], viewsController.chat);
+
+    this.get("/purchase", ["AUTH"], viewsController.purchase);
+
+    this.get("/password-restore", ["PUBLIC"], viewsController.passwordRestore);
+  }
 }
 
 const viewsRouter = new ViewsRouter();
 
 export default viewsRouter.getRouter();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -149,8 +160,6 @@ export default viewsRouter.getRouter();
 //   res.render('carts', {cart});
 // });
 
-
-
 // router.get('/', async (req,res) => {
 //   try {
 //     if (!req.session.user) {
@@ -163,7 +172,7 @@ export default viewsRouter.getRouter();
 // })
 
 // router.get('/register', async (req,res) => {
-  
+
 //   try {
 //     res.render('register')
 //   } catch (error) {
@@ -183,5 +192,3 @@ export default viewsRouter.getRouter();
 // router.get('/profilejwt', async(req,res)=>{
 //   res.render('profileJWT')
 // })
-
-

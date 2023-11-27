@@ -7,7 +7,8 @@ export default class PersistenceFactory {
         let productsDao;
         let cartsDao;
         let userDao;
-        let ticketDao
+        let ticketsDao;
+        let chatDao;
 
 
         switch(config.app.PERSISTENCE){
@@ -15,10 +16,11 @@ export default class PersistenceFactory {
                 productsDao = (await import('./mongo/managers/productsDao.js')).default;
                 cartsDao = (await import('./mongo/managers/cartsDao.js')).default;
                 userDao = (await import('./mongo/managers/usersDao.js')).default;
-                ticketDao = (await import('./mongo/managers/ticketsDao.js')).default
+                ticketsDao = (await import('./mongo/managers/ticketsDao.js')).default
+                chatDao = (await import('./mongo/managers/chatDao.js')).default;
                 break;
             }
-                
+                //falta completar
             case 'FS': {
                 productsDao = (await import('./fileSystem/managers/productsDao.js')).default;
                 cartsDao = (await import('./fileSystem/managers/cartsDao.js')).default;
@@ -29,7 +31,8 @@ export default class PersistenceFactory {
             productsDao,
             cartsDao,
             userDao,
-            ticketDao
+            ticketsDao,
+            chatDao,
         }
     }
 }

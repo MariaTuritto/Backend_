@@ -16,11 +16,11 @@ export default class UsersService {
         return this.dao.createUser(user)
     }
 
-    updateUser = () =>{
+    updateUser = (uid, user) =>{
         return this.dao.updateUser(uid, user);
     }
 
-    deleteUser = () => {
+    deleteUser = (uid) => {
         return this.dao.deleteUser(uid)
     }
 }

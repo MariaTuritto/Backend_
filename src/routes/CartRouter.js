@@ -4,21 +4,25 @@ import cartsController from "../controllers/carts.controller.js";
 class cartsRouter extends BaseRouter {
   init(){
 
-    this.get('/:cid', ['AUTH'], cartsController.getCartBy);
+    this.get('/:cid', ['USER'], cartsController.getCartBy);
 
-    this.post('/', ['ADMIN'], cartsController.createCart);
+    this.get('/:cid/purchase', ['USER'], cartsController.purchaseCart);
+
+    this.post('/', ['USER'], cartsController.createCart);
 
     this.put('/:cid/products/:pid', ['NO_AUTH'], cartsController.updateCart);
 
-    this.put('/:cid/product/:pid', ['NO_AUTH'], cartsController.updateInCartProductQuantity);
+    this.put('/:cid/products/:pid', ['NO_AUTH'], cartsController.addProdToCart);
+
+    this.put('/products/:pid', ["USER"], cartsController.addProdToCart);
 
     this.put('/products/:pid',['AUTH'], cartsController.addProdToCart);
 
-    this.post('/:cid/purchase', ['NO_AUTH'], cartsController.purchaseCart);
+    this.delete('/:cid', ['USER'], cartsController.deleteAllProduct);
+
+    this.delete('/:cid', ['USER'], cartsController.deleteProductInCart);
 
     this.delete('/:cid', ['ADMIN'], cartsController.deleteCart);
-
-    this.delete('/:cid/products/:pid', ['USER'], cartsController.deleteProdFromCart);
 
   }
 

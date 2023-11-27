@@ -1,25 +1,24 @@
- import userModel from "../models/user.model.js";
+import userModel from "../models/user.model.js";
 
 export default class userDao {
+  getUser = (params) => {
+    return userModel.find(params).lean();
+  };
 
-    getUser = (params) => {
-        return userModel.find(params);
-    }
+  getUserBy = (uid) => {
+    return userModel.findOne(uid).lean();
+  };
 
-    getUserBy = (uid) => {
-        return userModel.findOne(uid).lean();
+  createUser = (user) => {
+    const result = userModel.create(user);
+    return result.toObject();
+  };
 
-    }
+  updateUser = (uid, user) => {
+    return userModel.updateOne({ _id: uid }, { $set: user });
+  };
 
-    createUser = (user)=>{
-        return userModel.create(user)
-    }
-
-    updateUser = (uid, user) =>{
-        return userModel.updateOne({_id: uid}, {$set: user});
-    }
-
-    deleteUser = (uid) => {
-        return userModel.deleteOne({_id:uid})
-    }
+  deleteUser = (uid) => {
+    return userModel.deleteOne({ _id: uid }, { $set: { activate: false } });
+  };
 }

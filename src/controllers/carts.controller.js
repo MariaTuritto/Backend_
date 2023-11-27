@@ -2,205 +2,434 @@ import {
   cartService,
   productsService,
   ticketService,
-  userService,
 } from "../service/index.js";
 
-//falta corregir y agregar logicas
-
-const getCartBy = async (req, res) => {
-  const { cid } = req.params;
-  const cart = await cartService.getCartBy({ _id: cid }, { populate: true });
-  if (!cart)
-    return res.status(404).send({ status: "error", message: "cart not found" });
-  res.send({ status: "success", payload: cart });
-};
-
-const createCart = async (req, res) => {
-  const cart = await cartService.createCart();
-  res.send({ status: "success", payload: cart._id });
-};
+import ErrorsDictionary from "../dictionary/errors.js";
+import errorCodes from "../dictionary/errorCodes.js";
 
 
+const getCartBy = async (req, res, next) => {
+  try {
+    const { cid } = req.params;
+    const cart = await cartService.getCartBy({ _id: cid }, { populate: true });
+    if (!cart)  {
+      req.logger.warning(
+        `[${new Date().toISOString()}] Alert: Cart doesn't exist`
+      );
+        return res.status(404).send({ status: "error", message: "cart not found" });
+    } else {
+      req.logger.info(
+        `[${new Date().toISOString()}] Cart successfully obtained`
+      );
+      req.logger.debug(`[${new Date().toISOString()}] Carrito: ${cart._id}`);
+      res.send({ status: "success", payload: cart });
+    }
+    
+  } catch (error) {
+    const knownError = ErrorsDictionary[error.name];
+    const customError = new Error();
 
-
-
-const updateCart = async (req, res) => {
-  const { cid, pid } = req.params;
-  const cart = await cartService.getCartBy({ cid, pid }, { populate: false });
-  if (!cart)
-    return res
-      .status(400)
-      .send({ status: "error", message: "Cart doesn't exist" });
-
-  const productExists = await productsService.getProductsBy({ _id: pid });
-  if (!productExists)
-    return res
-      .status(400)
-      .send({ status: "error", message: "Product doesn't exist" });
-
-  const productExistInCart = cart.products.find((item) => {
-    return item.product.toString() === pid;
-  });
-
-  if (!productExistInCart) {
-    cart.products.push({ product: pid, quantity: 1 });
-  } else {
-    productExistInCart.quantity++;
+    if (knownError) {
+      customError.name = knownError;
+      customError.message = error.message;
+      customError.code = errorCodes
+      [knownError];
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(customError);
+  
+    } else {
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(error);
+    }
   }
-  await cartService.updateCart(cid, {
-    products: cart.products,
-    quantity: cart.quantity,
-  });
-  res.send({ status: "success", payload: cart });
 };
 
+const createCart = async (req, res, next) => {
+  try {
+    const cart = await cartService.createCart(cart);
+    req.logger.info(
+      `[${new Date().toISOString()}] Cart whit id ${cart._id} successfully created`);
+   return res.send({ status: "success", payload: cart._id });
+  } catch (error) {
+    const knownError = ErrorsDictionary[error.name];
+    const customError = new Error();
 
-
-
-
-const updateInCartProductQuantity = async (req, res) => {
-  const { pid, cid } = req.params;
-  const quantity = req.body;
-
-  const cart = await cartService.getCartBy({ _id: cid });
-  if (!cart)
-    return res.status(400).send({ status: "error", message: "cart not found" });
-
-  const productExists = await productsService.getProductsBy(pid);
-  if (!productExists)
-    return res
-      .status(400)
-      .send({ status: "error", message: "Product does not exist" });
-
-  const productExistInCart = cart.products.find((item) => {
-    return item.product.toString() === pid;
-  });
-  if (!productExistInCart)
-    return res
-      .status(400)
-      .send({ status: "error", message: "Product does not exist in cart" });
-
-  await cartService.updateInCartProductQuantity(cid, pid, quantity);
-  res.send({ status: "success", payload: "Quantity product updated" });
-};
-
-
-
-
-
-const addProdToCart = async (req, res) => {
-  const { cid } = req.params;
-  const newProducts = req.body;
-  const cart = await cartService.getCartBy({ _id: cid }, { populate: false });
-  if (!cart)
-    return res.status(400).send({ status: "error", message: "Cart not found" });
-
-  await cartService.updateCart(cid, newProducts);
-  res.send({ status: "success", payload: "Cart updated with new products" });
-};
-
-
-
-
-
-const purchaseCart = async (req, res) => {
-  const { cid } = req.params;
-  const { user, products } = req.body;
-
-  const cart = await cartService.getCartBy({ _id: cid }, { populate: true });
-  if (!cart)
-    return res.status(400).send({ status: "error", message: "Cart not found" });
-
-  //obtener stock de productos add al cart
-  const purchasedProd = [];
-
-  for (const item of cart.products) {
-    const pid = cart.product._id;
-    const productExists = await productsService.getProductsBy(pid);
-
-    if (!productExists)
-      return res
-        .status(400)
-        .send({ status: "error", message: "Product does not exist" });
-    if (productExists.stock >= item.quantity)
-    purchasedProd.push(item);
-    //falta logica de actualizar los productos no comprados
+    if (knownError) {
+      customError.name = knownError;
+      customError.message = error.message;
+      customError.code = errorCodes[knownError];
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(customError);
+    } else {
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(error);
+    }
   }
-  const resultUser = await userService.getUserBy(user);
-  const resultProducts = await productsService.getProductsBy(products);
 
-  let actualTicket = resultProducts.products.filter((product) =>
-    products.includes(product._id)
-  );
+};
 
-  let sum = actualTicket.reduce((acc, prev) => {
-    acc += prev.price;
-    return acc;
-  }, 0);
+const deleteProductInCart = async (req, res, next) => {
+  try {
+    const {cid} = req.params
+    const cartId = await cartService.getCartBy({_id:cid});
 
-  let codeTicket = Date.now() + Math.floor(Math.random() * 10000 + 1);
+    let objCart = await cartId[0];
+    if (objCart) {
+      const productId = await objCart.products.find(
+        (product) => product.product._id == pid
+      );
+      if (productId) {
+        let arrayProducts = await objCart.products;
+        let newArrayProducts = await arrayProducts.filter(
+          (product) => product.product._id != pid
+        );
+  
+        if (newArrayProducts) {
+          await cartService.updateCart(
+            { _id: cid },
+            { products: newArrayProducts }
+          );
+          return "Deleted successfully";
+        }
+      } else {
+        req.logger.warning(
+          `[${new Date().toISOString()}] Alert: Product doesn't exist`
+        );
+        return `Product not found`;
+      }
+    } else {
+      req.logger.warning(
+        `[${new Date().toISOString()}] Alert: Cart doesn't exist`
+      );
+      return "Cart Not Found";
+    }
+  } catch (error) {
+    const knownError = ErrorsDictionary[error.name];
+    const customError = new Error();
+    if (knownError) {
+      customError.name = knownError;
+      customError.message = error.message;
+      customError.code = errorCodes[knownError];
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(customError);
+    } else {
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(error);
+    }
+  }
+};
 
-  let newTicket = {
-    code: codeTicket,
-    amount: sum,
-    purchaser: "correocliente@gmail.com",
-    products: actualTicket.map((product) => product._id),
+const addProdToCart = async (req, res, next) => {
+  try {
+    const { cid, pid, quantity } = req.params;
+    const product = await productsService.getProductsBy({_id:req.params.pid})
+    let cart;
+    if (cid) {
+      cart = await cartService.getCartBy({ _id: cid }, { populate: false });
+    } else {
+      cart = await cartService.getCartById({ _id: req.user.cart });
+    }
+  
+    const quantityAdd = quantity ? quantity : 1;
+  
+    if (cart) {
+      if (product) {
+        let arrayProducts = await cart.products;
+        let positionProduct = arrayProducts.findIndex(
+          (product) => product.product._id == pid
+        );
+  
+        if (positionProduct != -1) {
+          arrayProducts[await positionProduct].quantity =
+            arrayProducts[positionProduct].quantity + quantityAdd;
+        } else {
+          arrayProducts.push({ product: pid, quantity: quantityAdd });
+        }
+        await cartService.updateCart(
+          { _id: cart._id },
+          { products: arrayProducts }
+        );
+        return res.send({ status: "success", message: "Added successfully" });
+      } else {
+        req.logger.warning(
+          `[${new Date().toISOString()}] Alert: Product doesn't  exist`
+        );
+        return res.send({ status: "error", message: "Product not found" });
+      }
+    } else {
+      req.logger.warning(
+        `[${new Date().toISOString()}] Alert: Cart doesn't exist`
+      );
+      return res.send({ status: "error", message: "Cart not found" });
+    }
+  } catch (error) {
+    const knownError = ErrorsDictionary[error.name];
+    const customError = new Error();
+    if (knownError) {
+      customError.name = knownError;
+      customError.message = error.message;
+      customError.code = errorCodes[knownError];
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(customError);
+    } else {
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(error);
+    }
+  }
+};
+
+const updateProduct = async (req, res, next) => {
+  try {
+    const { cid, pid, quantity } = req.params;
+
+    const cartId = await cartService.getCartBy(cid);
+    const quantityAdd = quantity ? quantity : 1;
+  
+    let objCart = await cartId[0];
+    if (objCart) {
+      const productId = await objCart.products.find(
+        (product) => product.product._id == pid
+      );
+      if (productId) {
+        let arrayProducts = await objCart.products;
+        let positionProduct = await arrayProducts.findIndex(
+          (product) => product.product._id == pid
+        );
+  
+        arrayProducts[await positionProduct].quantity = quantityAdd;
+        await cartService.updateCart({ _id: cid }, { products: arrayProducts });
+          return res.send({
+          status: "success",
+          message: "Product updated successfully",
+        });
+      } else {
+        req.logger.warning(`[${new Date().toISOString()}] Alert: Product doesn't exist`);
+        return res.send({ status: "error", message: "Product not found" });
+      }
+    } else {
+      return res.send({ status: "error", message: "Cart not found" });
+    }
+  } catch (error) {
+    const knownError = ErrorsDictionary[error.name];
+    const customError = new Error();
+    if (knownError) {
+      customError.name = knownError;
+      customError.message = error.message;
+      customError.code = errorCodes[knownError];
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(customError);
+    } else {
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(error);
+    }
+  }
+};
+
+const deleteAllProduct = async (req, res, next) => {
+  try {
+    const { cid } = req.params;
+   //ingreso a la lista de carts para ver si existe el id 
+    const cart = await cartService.getCartBy({ _id: cid });
+    if (cart) {
+      await cartService.updateCart({ _id: cid }, { products: [] });
+  
+      return res.send({
+        status: "success",
+        message: "All products deleted successfully",
+      });
+    } else {
+      req.logger.warning(`[${new Date().toISOString()}] Alert: Cart doesn't exist`);
+      return res.send({ status: "error", message: "Cart not found" });
+    }
+  } catch (error) {
+    const knownError = ErrorsDictionary[error.name];
+    const customError = new Error();
+
+    if (knownError) {
+      customError.name = knownError;
+      customError.message = error.message;
+      customError.code = errorCodes[knownError];
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(customError);
+    } else {
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(error);
+    }
+  }
+
+};
+
+
+const purchaseCart = async (req, res, next) => {
+  try {
+    const { cid } = req.params;
+    const user = req.user
+    
+    let purchasedProd = [];
+    let purchasedNotProd = [];
+  
+    try {
+      const cart = await cartService.getCartBy({ _id: cid }, { populate: true });
+      if (!cart) {
+        req.logger.warning(
+          `[${new Date().toISOString()}] Alert: Cart doesn't exist`
+        );
+          return res.status(404).send({ status: "error", message: "Cart not found" });
+      }
+   
+      for (const item of cart.products) {
+        const pid = cart.product._id;
+        const product = await productsService.getProductsBy(pid);
+    
+        if (!product) {
+          purchasedNotProd.push(item);
+          continue;
+        }
+        if (item.quantity >= product.stock){
+          purchasedNotProd.push(item);
+          continue;
+        }
+  
+        product.stock -= item.quantity;
+        await productsService.updateProduct(
+          { _id: product._id },
+          { stock: product.stock }
+        );
+          purchasedProd.push(item);
+      }
+    } catch (error) {
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      
+      return res.status(500).send({
+        status: "error",
+        message: "An error occurred while processing the purchase",
+      });
+    
+    }
+  
+      let sum = purchasedProd.reduce((acc, item) =>
+        acc += item.product.price * item.quantity, 0);
+    
+      let codeTicket = Date.now().toString(15) + Math.floor(Math.random() * 10000 + 1);
+    
+      let amount = sum.toFixed(2);
+  
+      let newTicket = {
+        code: codeTicket,
+        amount: amount,
+        purchase_datetime: new Date().toISOString(),
+        purchaser: user.email,
+        products: purchasedProd,
+      };
+  
+      try {
+        await ticketService.createTicket(newTicket);
+        if(purchasedNotProd.length > 0){
+          await cartService.updateCart(
+            {_id: cid},
+            {products: purchasedNotProd}
+          );
+        }
+      } catch (error) {
+        req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+        return res.status(500).send({
+          status: "error",
+          message: "An error occurred while processing the purchase",
+        });
+      } 
+      req.logger.info(`[${new Date().toISOString()}] Ticket created successfully`);
+      return res.send({ status: "success", message: "Cart purchased successfully", payload: newTicket});
+  } catch (error) {
+    const knownError = ErrorsDictionary[error.name];
+    const customError = new Error();
+    if (knownError) {
+      customError.name = knownError;
+      customError.message = error.message;
+      customError.code = errorCodes[knownError];
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(customError);
+    } else {
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(error);
+    }
+  }
+ 
+};
+ 
+const updateCart = async (req, res, next) => {
+  try {
+    const { cid } = req.params;
+    const cart = await cartService.getCartBy({ _id: cid });
+  
+    if (!cart) {
+      req.logger.warning(
+        `[${new Date().toISOString()}] Alert: Cart doesn't exist`
+      );
+      return res.status(404).send({ status: "error", message: "Cart not found" });
+    }
+  
+    await cartService.updateCart({ _id: cid }, { products: [] });
+  
+    res.send({
+      status: "success",
+      message: "Cart updated successfully",
+    });
+  } catch (error) {
+    const knownError = ErrorsDictionary[error.name];
+    const customError = new Error();
+    if (knownError) {
+      customError.name = knownError;
+      customError.message = error.message;
+      customError.code = errorCodes[knownError];
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(customError);
+
+    } else {
+      req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+      next(error);
+    }
+  }
+}
+  const deleteCart = async (req, res, next) => {
+    try {
+      const { cid } = req.params;
+      const cart = await cartService.deleteCart({ _id: cid });
+      if (!cart) {
+        await cartService.deleteCart(cid);
+        req.logger.warning(
+          `[${new Date().toISOString()}] Alert: Cart doesn't exist`
+        );
+        return res.status(400).send({ status: "error", message: "cart not found" });
+      }
+      return res.send({ status: "success", message: "cart deleted successfully" });
+
+    } catch (error) {
+      const knownError = ErrorsDictionary[error.name];
+      const customError = new Error();
+      if (knownError) {
+        customError.name = knownError;
+        customError.message = error.message;
+        customError.code = errorCodes[knownError];
+        req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+        next(customError);
+      } else {
+        req.logger.error(`[${new Date().toISOString()}] Error: ${error.message}`);
+        next(error);
+      }
+    } 
   };
+  
 
-  const ticketResult = await ticketService.createTicket(newTicket);
-  resultUser.tickets.push(ticketResult._id);
-  await userService.updateUser(user, resultUser);
-  res.send({ status: "success", ticketResult });
-};
-
-
-
-
-const deleteProdFromCart = async (req, res) => {
-  const { cid, pid } = req.params;
-
-  const cart = await cartService.getCartBy({ _id: cid });
-  if (!cart)
-    return res.status(400).send({ status: "error", message: "cart not found" });
-
-  const productExists = await productsService.getProductsBy(pid);
-  if (!productExists)
-    return res
-      .status(400)
-      .send({ status: "error", message: "Product does not exist" });
-
-  const productExistInCart = cart.products.find((item) => {
-    return item.product.toString() === pid;
-  });
-  if (!productExistInCart)
-    return res
-      .status(400)
-      .send({ status: "error", message: "Product does not exist in cart" });
-
-  await cartService.deleteProdFromCart(cid, pid);
-  res.send({ status: "success", message: "Product deleted" });
-};
-
-
-
-
-const deleteCart = async (req, res) => {
-  const { cid } = req.params;
-  const cart = await cartService.findOne({ _id: cid });
-  if (!cart)
-    return res.status(400).send({ status: "error", message: "cart not found" });
-  await cartService.deleteCart(cid);
-  res.send({ status: "success", message: "cart deleted successfully" });
-};
 
 export default {
   getCartBy,
   createCart,
-  updateCart,
-  updateInCartProductQuantity,
+  deleteProductInCart,
   addProdToCart,
+  updateProduct,
+  deleteAllProduct,
   purchaseCart,
-  deleteProdFromCart,
+  updateCart,
   deleteCart,
 };
 
@@ -221,39 +450,3 @@ export default {
 
 
 
-// const cart = await cartService.getCartBy({_id:cid}, {populate:true});
-// if (!cart) return res.status(400).send({status: "error", message: "Cart not found"})
-
-// const purchaseProd = []
-// let sumTotal = 0
-
-// for (const item of cart.products) {
-//   let product = item.product
-//   let quantity = item.quantity
-//   let stock = product.stock
-//   let amount = product.price
-
-//   if (quantity <= stock) {
-//     let newStock = stock - quantity
-
-//     purchaseProd.push(item);
-//     console.log(`Producto ${product.code} agregado exitosamente`);
-
-//     sumTotal += amount
-
-//   } else {
-//     console.log(`El producto ${product.code} esta agotado`);
-//   }
-// }
-// const codeTicket = Date.now().toString(15);
-
-// const newTicket = {
-//   code: codeTicket,
-//   amount: sumTotal,
-//   purchaser: "correocliente@gmail.com"
-// }
-// console.log(newTicket);
-
-// const ticketResult = await ticketService.createTicket(newTicket)
-// if (ticketResult)
-// res.status(200).send({status: "success", message: "Your order has been purchased!"})

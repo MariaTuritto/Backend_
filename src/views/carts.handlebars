@@ -1,17 +1,18 @@
 <div class="container">
-  <h1 class="title">Mi carrito de compras</h1>
+  <h1 class="title">Mi carrito</h1>
 </div>
 
 <div>
   <table class="table">
     <thead>
-      <tr>Nombre</tr>
-      <tr>Descripción</tr>
-      <tr>Categoría</tr>
-      <tr>Stock</tr>
-      <tr>Precio</tr>
-      <tr>Cantidad</tr>
-      <tr>Total</tr>
+   <tr>
+        <th scope="col">Nombre</th>
+        <th scope="col">Descripción</th>
+        <th scope="col">Categoría</th>
+        <th scope="col">Stock</th>
+        <th scope="col">Precio</th>
+        <th scope="col">Cantidad</th>
+   </tr>
     </thead>
     <tbody id="cartContainer">
 
@@ -21,6 +22,21 @@
 </div>
 <div>
   <p>Total: ${{total}}</p>
+</div>
+
+
+<div class="btnContainer">
+  <a href="/products"><input
+      class="btn btn-primary btn-a"
+      type="submit"
+      value="Seguir comprando"
+    /></a>
+  <a href="/purchase"><input
+      class="btn btn-success btn-a"
+      type="submit"
+      value="Finalizar compra"
+      id="purchaseBtn"
+    /></a>
 </div>
 
 <script src="/js/cart.js"></script>

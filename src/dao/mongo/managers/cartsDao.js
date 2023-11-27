@@ -17,16 +17,9 @@ export default class cartsDao {
     return cartsModel.updateOne({ _id: cid }, { $set:cart });
   };
 
-  updateInCartProductQuantity = (cid, pid, quantity) => {
-    return cartsModel.updateOne({_id:cid}, {$inc: {'products.[product].quantity': Number(quantity)}}, {arrayFilters:[{'element._id':pid}]})
-  }
-  deleteProdFromCart = (cid,pid) => {
-    return cartsModel.updateOne({_id: cid}, {$pull: {products: {_id: pid}}})
-  }
 
   deleteCart = (cid) => {
-    return cartsModel.deleteOne({ _id: cid });
+    return cartsModel.deleteOne({ _id: cid }, { $set: { products: [] }});
   };
-
 
 }

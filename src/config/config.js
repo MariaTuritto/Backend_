@@ -1,25 +1,10 @@
-import dotenv from 'dotenv';
-import {Command} from 'commander';
-
-const program = new Command();
-program.option('-m, --mode <mode>','Modo de trabajo','production')
-.option('-p <port>','Puerto del servidor',8080)
-
-program.parse();
-
-dotenv.config({
-    path:program.opts().mode==="dev"?'./.env.dev':'./.env.prod'
-});
-
+//MODIFICANDO PARA CORREGIR ERRORES
 export default {
     app:{
         PERSISTENCE: process.env.PERSISTENCE || 'MONGO',
         PORT: process.env.PORT||8080,
         ADMIN_EMAIL: process.env.ADMIN_EMAIL,
         ADMIN_PASSWORD: process.env.ADMIN_PASSWORD,
-        GMAIL_USER:process.env.GMAIL_USER,
-        GMAIL_PASSWORD:process.env.GMAIL_PASSWORD
-
     },
     mongo:{
         URL: process.env.MONGO_URL||'localhost:27017'
@@ -27,6 +12,14 @@ export default {
     jwt: {
         COOKIE: process.env.JWT_COOKIE,
         SECRET: process.env.JWT_SECRET
-    }
+    },
+      mailer: {
+        USER: process.env.GMAIL_USER,
+        PASS: process.env.GMAIL_PASSWORD,
+      },
+    google: {
+        CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+        CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+      }
 }
 

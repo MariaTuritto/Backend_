@@ -3,9 +3,8 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import userDao from "../dao/mongo/managers/usersDao.js";
-import authService from "../service/authService.js";
 import cartDao from "../dao/mongo/managers/cartsDao.js";
-
+import authService from "../service/authService.js";
 import config from "./config.js"
 
 const cartService = new cartDao();
@@ -22,6 +21,7 @@ const initializeStrategies = () => {
           const { firstName, lastName } = req.body;
         if (!firstName || !lastName)
           return done(null, false, { message: "Incomplete values" });
+
         const existsUser = await usersService.getUserBy({ email });
         if (existsUser)
           return done(null, false, { message: "User already exist" });
@@ -40,7 +40,7 @@ const initializeStrategies = () => {
         if(req.cookies['cart']){ //te trae la cart que existe en la cookie
           cart = req.cookies['cart'];
         }else{ //Si no existe la cookie, la vamos a crear en la base de datos
-          cartResult = await cartService.createCart();
+          const cartResult = await cartService.createCart();
           cart = cartResult._id
         }
 
@@ -94,12 +94,13 @@ const initializeStrategies = () => {
 //LOGICA PARA INICIAR SESION CON GOOGLE
 passport.use('google', new GoogleStrategy(
   {
-      clientID:"604613985429-tsv68l2q5uhm6k8gafkigvuged903kk5.apps.googleusercontent.com",
-      clientSecret:"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",
+      clientID: config.google.CLIENT_ID ||"604613985429-tsv68l2q5uhm6k8gafkigvuged903kk5.apps.googleusercontent.com",
+      clientSecret: config.google.CLIENT_SECRET ||"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",
       callbackURL:"http://localhost:8080/api/sessions/googlecallback",
-      passReqToCallback:true
-  },async(req,accessToken, refreshToken, profile, done) => {
-      console.log(profile);
+      passReqToCallback:true,
+  },
+  async(req,accessToken, refreshToken, profile, done) => {
+      
       try 
       {
           const { _json } = profile;

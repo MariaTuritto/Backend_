@@ -1,4 +1,4 @@
-<h3 class="title">All Products:</h3>
+<h3 class="title">Sólo aquí encontratas sabores del Caribe</h3>
 
 <div class="mainContainer">
   <div>
@@ -45,7 +45,7 @@
   
   <div class="pagination">
     {{#if hasPrevPage}}
-      <a href="/?page={{prevPage}}"><button
+      <a href="/products?page={{prevPage}}"><button
           class="btn btn-paginate"
         >PrevPage</button></a>
     {{/if}}
@@ -53,7 +53,7 @@
     <h5 class="page">{{page}}</h5>
 
     {{#if hasNextPage}}
-      <a href="/?page={{nextPage}}"><button
+      <a href="/products?page={{nextPage}}"><button
           class="btn btn-paginate"
         >NextPage</button></a>
     {{/if}}

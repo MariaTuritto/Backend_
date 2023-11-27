@@ -1,17 +1,16 @@
 <h1 class="title">Bienvenido</h1>
 
-<form class="formProducts" id='loginform'>
+<form class="formProducts" id="loginform">
   <label class="label">Email</label>
   <input class="controls" name="email" />
-  
+
   <label class="label">Contraseña</label>
   <input class="controls" name="password" />
-  
-  <input class="btn btn-success"  type="submit" />
+
+  <input class="btn btn-success" type="submit" />
 </form>
 
-        <p>¿Aún no estas registrado? ¿Qué esperas?<a href="/register">Registrate haciendo click aquí</a>.</p>
-       
-        <p>Inicia sesion mediante <a href="/api/sessions/google">google</a></p>
+<p>¿Olvidaste tu Contraseña? Puedes reestablecerala
+  <button class="btn btn-danger" onclick="restorePassword()">haciendo click aqui</button></p>
 
 <script src="/js/login.js"></script>

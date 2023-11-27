@@ -1,77 +1,31 @@
-import jwt from "jsonwebtoken";
 import BaseRouter from "./BaseRouter.js";
+import sessionsController from "../controllers/sessions.controller.js";
 import passportCall from "../middleware/passportCall.js";
-import config from "../config/config.js";
-import MailingService from "../service/mailingService.js";
+import { validateJWT } from "../middleware/jwtExtractor.js";
+import authService from "../service/authService.js";
+
+// import config from "../config/config.js";
+// import MailingService from "../service/mailingService.js";
 
 class SessionsRouter extends BaseRouter {
   init() {
     this.post(
       "/register",
       ["NO_AUTH"],
-      passportCall("register", { strategyType: "LOCALS" }),
-      async (req, res) => {
-        res.clearCookie("cart");
-        res.sendSuccess("Registered");
-        return res.redirect("profile");
-      }
+      passportCall("register", { strategyType: "LOCALS" },   sessionsController.register),
     );
     this.post(
       "/login",
       ["NO_AUTH"],
-      passportCall("login", { strategyType: "LOCALS" }),
-      async (req, res) => {
-        const tokenizedUser = {
-          name: `${req.user.firstName} ${req.user.lastName}`,
-          id: req.user._id,
-          role: req.user.role,
-          cart: req.user.cart,
-        };
-        const token = jwt.sign(tokenizedUser, config.jwt.SECRET, {
-          expiresIn: "1d",
-        });
-        res.cookie(config.jwt.COOKIE, token);
-        res.clearCookie("cart");
-        res.sendSuccess("Logged In");
-      });
-
-        //APLICANDO NODE MAILER:
-        this.get("/mails", async (req, res) => {
-          const mailService = new MailingService();
-          //ENVIAMOS CORREO:
-          const mailRequest = {
-            from: "YO MISMO",
-            to: ["turittomaria@gmail.com"], //recuerda incrustar en html el css
-            subject: "PRUEBA MAIL",
-            html: `
-      <div>
-      <h1>Bienvenido a Myecommerce</h1>
-      <br/>
-      <p>Gracias por suscribirte, te damos la bienvenida con un cupón de descuento en tu próxima compra</p>
-      <br/>
-      <imag src="cid:mailing"/>
-      </div>
-      `,
-            attachments: [
-              {
-                filename: "mailing.png",
-                path: __dirname + "img/mailing.png",
-                cid: "mailing",
-              },
-            ],
-          };
-
-          const mailResult = await mailService.sendMail(mailRequest);
-          console.log(mailResult);
-    //FALTARIA AGREGAR ESTA LÓGICA AL REGISTRASE O AL FINALIZAR LA COMPRA
-      });
-
+      passportCall("login", { strategyType: "LOCALS" }, sessionsController.login),
+   );
+    
     this.get(
       "/google",
       ["NO_AUTH"],
       passportCall("google", {
         scope: ["profile", "email"],
-        strategyType: "OAUTH",
+        strategyType: "GOOGLE",
       }),
       async (req, res) => {}
     );
@@ -79,30 +33,37 @@ class SessionsRouter extends BaseRouter {
     this.get(
       "/googlecallback",
       ["NO_AUTH"],
-      passportCall("google", { strategyType: "OAUTH" }),
-      async (req, res) => {
-        const tokenizedUser = {
-          name: `${req.user.firstName} ${req.user.lastName}`,
-          id: req.user._id,
-          role: req.user.role,
-          cart: req.user.cart,
-        };
-        const token = jwt.sign(tokenizedUser, config.jwt.SECRET, {
-          expiresIn: "1d",
-        });
-        res.cookie(config.jwt.COOKIE, token);
-        res.clearCookie("cart");
-        res.sendSuccess("Logged In");
-        console.log(req.user);
+      passportCall("google", { strategyType: "OAUTH" }, sessionsController.applyGoogleCallback),
+      );
 
-   
+      this.get("/logout", ["AUTH"], sessionsController.logout);
+
+      this.get("/current", ["AUTH"], sessionsController.current);
+
+  
+      this.get("authFail", async (req,res) => {
+        req.logger.error(`[${new Date().toISOString()}] Error: user authentication failure `);
+        res.status(401).send({ status: "error" });
       });
 
-    this.get("/current", ["AUTH"], async (req, res) => {
-      res.sendSuccessWithPayload(req.user);
-    });
+      this.get("/mails", ["AUTH"], sessionsController.mailing);
+
+  
+      this.post(
+        "/passwordRestoreRequest",
+        ["PUBLIC"],
+        sessionsController.passwordRestoreRequest
+      );
+      this.put(
+        "/password-restore",
+        ["PUBLIC"],
+        sessionsController.restorePassword
+      );
+
   }
 }
+
+
 
 const sessionsRouter = new SessionsRouter();
 

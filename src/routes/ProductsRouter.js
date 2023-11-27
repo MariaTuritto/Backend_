@@ -1,15 +1,18 @@
 import BaseRouter from './BaseRouter.js';
 import productsController from '../controllers/products.controller.js';
+import uploader from "../service/uploadService.js"; 
 
 class ProductsRouter extends BaseRouter {
   init(){
     this.get('/',['PUBLIC'], productsController.getPaginateProducts);
 
     this.get('/:pid', ['PUBLIC'], productsController.getProductsBy);
-    
-    this.post('/', ['PUBLIC'], productsController.createProduct)//lo pase a public para cargar a CLOUDSTORAGE LOS PRODUCTS
+       
+    //lo pase a public para cargar a CLOUDSTORAGE LOS PRODUCTS
+    this.post('/', ['PUBLIC', 'PREMIUN'], uploader.array('thumbnail'),productsController.createProduct)
+ 
 
-    this.put('/:pid', ['ADMIN'], productsController.updateProduct)
+    this.put('/:pid', ['ADMIN', 'PREMIUN'], productsController.updateProduct)
 
     this.delete('/:pid', ['ADMIN'], productsController.deleteProduct)
 
@@ -20,6 +23,90 @@ class ProductsRouter extends BaseRouter {
 const productsRouter = new ProductsRouter();
 
 export default productsRouter.getRouter();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//PENDIENTES:
+//CAMBIAR UBICACION DEL MAILING
+//BUSCAR ERROR DE GOOGLECLOUDSTORAGE, NO TRAE LOS PRODUCTOS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

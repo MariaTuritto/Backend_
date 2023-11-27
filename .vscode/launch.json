@@ -1,7 +1,5 @@
 {
-    // Use IntelliSense para saber los atributos posibles.
-    // Mantenga el puntero para ver las descripciones de los existentes atributos.
-    // Para más información, visite: https://go.microsoft.com/fwlink/?linkid=830387
+
     "version": "0.2.0",
     "configurations": [
         {
@@ -12,11 +10,23 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}\\Backend_\\src\\app.js",
+            "restart": true,
+            "runtimeExecutable": "nodemon", 
             "env": {
                 "PERSISTENCE": "MONGO",
-            },
-            "restart": true,
-            "runtimeExecutable": "nodemon"
+                "MONGO_URL":"BASE",
+                "GOOGLE_CLIENT":"GOOGLE_CLIENT",
+                "GOOGLE_SECRET":"GOOGLE_SECRET",
+                "GOOGLE_KEY_FILE":"FILE KEY",
+                "GOOGLE_BUCKET_NAME":"BUCKET",
+                "JWT_COOKIE":"authCookie",
+                "JWT_SECRET":"jwtSecret",
+                "ADMIN_EMAIL":"correoadmin@correo.com",
+                "ADMIN_PASSWORD":"123",
+                "NODE_MAILER_USER":"MAILER CLIENT",
+                "NODE_MAILER_PASSWORD":"MAILER PASSWORD"
+            }
+        
         }
     ]
 }

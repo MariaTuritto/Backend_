@@ -34,14 +34,6 @@ form.onsubmit = (e) => {
   inputMessage.value = " ";
 };
 
-// socketClient.on("chat", (message) => {
-//   const chatRender = message
-//     .map((e) => {
-//       return `<p><strong>${e.user}</strong>${e.message}`;
-//     })
-//     .join(" ");
-//   chat.innerHTML = chatRender;
-// });
 
 socketClient.on("chat", (message) => {
   const chatRender = message;
