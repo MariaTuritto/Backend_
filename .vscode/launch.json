@@ -14,17 +14,18 @@
             "runtimeExecutable": "nodemon", 
             "env": {
                 "PERSISTENCE": "MONGO",
-                "MONGO_URL":"BASE",
-                "GOOGLE_CLIENT":"GOOGLE_CLIENT",
-                "GOOGLE_SECRET":"GOOGLE_SECRET",
-                "GOOGLE_KEY_FILE":"FILE KEY",
-                "GOOGLE_BUCKET_NAME":"BUCKET",
+                "MONGO_URL":"mongodb+srv://turittomaria:1234@cluster0.5r7jrt7.mongodb.net/Myecommerce?retryWrites=true&w=majority",
+                // "GOOGLE_CLIENT":"GOOGLE_CLIENT",
+                // "GOOGLE_SECRET":"GOOGLE_SECRET",
+                // "GOOGLE_KEY_FILE":"FILE KEY",
+                // "GOOGLE_BUCKET_NAME":"BUCKET",
                 "JWT_COOKIE":"authCookie",
                 "JWT_SECRET":"jwtSecret",
                 "ADMIN_EMAIL":"correoadmin@correo.com",
                 "ADMIN_PASSWORD":"123",
-                "NODE_MAILER_USER":"MAILER CLIENT",
-                "NODE_MAILER_PASSWORD":"MAILER PASSWORD"
+                "NODE_MAILER_USER":"turittomaria@gmail.com",
+                "NODE_MAILER_PASSWORD":"mqph wlio yofi qqfz",
+                "ENV": "production",
             }
         
         }

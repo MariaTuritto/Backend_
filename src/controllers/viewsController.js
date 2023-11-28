@@ -1,4 +1,5 @@
-import {productsService, cartService, ticketService, authService} from "../service/index.js"
+import {productsService, cartService, ticketsService} from "../service/index.js"
+import authService from "../service/authService.js";
 import { getValidFilters } from "../utils.js";
 import config from "../config/config.js";
 
@@ -54,7 +55,7 @@ const cart = async (req, res) => {
 };
 
 const purchase = async (req, res) => {
-  const ticket = await ticketService.getTicketsBy(req.user.cart._id);
+  const ticket = await ticketsService.getTicketsBy(req.user.cart._id);
   return res.render("purchase", { ticket });
 };
 

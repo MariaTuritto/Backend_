@@ -1,6 +1,7 @@
 import LoggerService from "../service/LoggerService.js";
+import config from "../config/config.js";
 
-const logger = new LoggerService('development');
+const logger = new LoggerService(config.app.ENV);
 
 const attachLogger = (req,res,next)=>{
     req.logger = logger.logger;

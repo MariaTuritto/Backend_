@@ -1,7 +1,7 @@
 import {
   cartService,
   productsService,
-  ticketService,
+  ticketsService,
 } from "../service/index.js";
 
 import ErrorsDictionary from "../dictionary/errors.js";
@@ -323,7 +323,7 @@ const purchaseCart = async (req, res, next) => {
       };
   
       try {
-        await ticketService.createTicket(newTicket);
+        await ticketsService.createTicket(newTicket);
         if(purchasedNotProd.length > 0){
           await cartService.updateCart(
             {_id: cid},

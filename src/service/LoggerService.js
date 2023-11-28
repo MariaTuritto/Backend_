@@ -2,14 +2,16 @@ import winston from "winston";
 
 export default class LoggerService {
   constructor(env) {
-    this.winston_levels = {
-      fatal: 0,
-      error: 1,
-      warning: 2,
-      info: 3,
-      http: 4,
-      debug: 5,
-    };
+    this.options = {
+      levels: {
+        fatal: 0,
+        error: 1,
+        warning: 2,
+        info: 3,
+        http: 4,
+      }
+    
+    }; 
     this.logger = this.createLogger(env);
   }
 
@@ -17,23 +19,19 @@ export default class LoggerService {
     switch (env) {
       case "development":
         return winston.createLogger({
-          levels: this.winston_levels,
+          levels: this.options.levels,
           transports: [
-            new winston.transports.Console({ level: "debug" }),
-            new winston.transports.File({
-              filename: "./ActivityErrors.log",
-              level: "error",
-            }),
+            new winston.transports.Console({ level: "debug" })
           ],
-        });
+        }); 
 
       case "production":
         return winston.createLogger({
-          levels: this.winston_levels,
+          levels: this.options.levels,
           transports: [
             new winston.transports.Console({ level: "info" }),
             new winston.transports.File({
-              filename: "./errors.log",
+              filename: "./activityErrors.log",
               level: "error",
             }),
           ],

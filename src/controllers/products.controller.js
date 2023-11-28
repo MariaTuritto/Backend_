@@ -1,8 +1,8 @@
-import CloudStorageService from "../service/CloudStorageService.js";
+// import CloudStorageService from "../service/CloudStorageService.js";
 import {productsService} from "../service/index.js";
 import { generateProducts } from "../mocks/products.js";
-import ErrorsDictionary from "../dictionaries/errors.js";
-import errorCodes from "../dictionaries/errorCodes.js";
+import ErrorsDictionary from "../dictionary/errors.js"
+import errorCodes from "../dictionary/errorCodes.js"
 
 
 
@@ -79,8 +79,7 @@ const createProduct = async (req, res, next) => {
     req.logger.warning(`[${new Date().toISOString()}] Alert: product incomplet}`);
     return res.status(400).send({status: "error", message: "Incomplete values" })
   }
-
-         
+     
   const newProduct = {
     title,
     description,
@@ -91,16 +90,22 @@ const createProduct = async (req, res, next) => {
     category
   }
 
-  const googleStorageService = new CloudStorageService();
-  const thumbnail = []
-  for(const file of req.files){
-    const url = await googleStorageService.uploadFileCloudStorage(file);
-    thumbnail.push(url)
+  const products = await productsService.getProducts();
+  const codeAlreadyExists = products.find(product => product.code === code)
+  if(codeAlreadyExists) {
+    req.logger.warning(`[${new Date().toISOString()}] Alert: this code already exists }`);
+    return res.status(400).send({status: "error", message: "Product code already exist"})
   }
-  console.log (thumbnail)
+  // const google StorageService = new CloudStorageService();
+  // const thumbnail = []
+  // for(const file of req.files){
+  //   const url = await googleStorageService.uploadFileCloudStorage(file);
+  //   thumbnail.push(url)
+  // }
+  // console.log (thumbnail)
   
-  newProduct.thumbnail = thumbnail
-  console.log(newProduct)
+  // newProduct.thumbnail = thumbnail
+  // console.log(newProduct)
 
   const result = await productsService.createProduct(newProduct)
   req.logger.info(`[${new Date().toISOString()}] product successfully added`);

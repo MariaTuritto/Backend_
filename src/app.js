@@ -49,6 +49,7 @@ app.use(express.static(`${__dirname}/public`));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
+
 app.use(attachLogger);
 
 
@@ -73,20 +74,12 @@ app.use(compression({
   })
 );
 //LOGGER
-app.use((req, res, next) => {
-  req.logger.http(
-    `${req.method} en ${req.url} - ${new Date().toLocaleTimeString()}`
-  );
-  next();
-});
+app.use("/loggerTest", (req, res) => {
 
-
-app.use("/loggerTest", attachLogger, async (req, res, next) => {
-  logger.log("debug", "test logger");
-  logger.log("http", "test logger");
-  logger.log("info", "test logger");
-  logger.log("error", "test logger");
-  logger.log("fatal", "test logger");
+  req.logger.http("ERROR HTTP");
+  req.logger.info("ERROR INFO");
+  req.logger.error("ERROR ERROR");
+  req.logger.fatal("FATAL ERROR");
   res.sendStatus(200);
 });
 
@@ -96,7 +89,7 @@ const swaggerOptions = {
     info: {
       title: "SuperChevere docs",
       version: "1.0.0",
-      description: "Aplicación para  E-commerce de productos importados y Nacionales",
+      description: "Aplicación para E-commerce de productos importados y Nacionales",
     },
   },
   apis: [`${__dirname}/docs/**/*.yml`],

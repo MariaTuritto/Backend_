@@ -1,7 +1,7 @@
-import jwt from "jsonwebtoken";
-import __dirname from "../utils";
-import ErrorsDictionary from "../dictionaries/errors.js";
-import errorCodes from "../dictionaries/errorCodes.js";
+import jwt from "jsonwebtoken"
+import __dirname from "../utils.js";
+import ErrorsDictionary from "../dictionary/errors.js";
+import errorCodes from "../dictionary/errorCodes.js";
 import MailerService from "../service/mailerService.js";
 import { userService } from "../service/index.js";
 import authService  from "../service/authService.js";
