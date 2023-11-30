@@ -15,8 +15,8 @@
             "env": {
                 "PERSISTENCE": "MONGO",
                 "MONGO_URL":"mongodb+srv://turittomaria:1234@cluster0.5r7jrt7.mongodb.net/Myecommerce?retryWrites=true&w=majority",
-                // "GOOGLE_CLIENT":"GOOGLE_CLIENT",
-                // "GOOGLE_SECRET":"GOOGLE_SECRET",
+                "GOOGLE_CLIENT":"604613985429-tsv68l2q5uhm6k8gafkigvuged903kk5.apps.googleusercontent.com",
+                "GOOGLE_SECRET":"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",
                 // "GOOGLE_KEY_FILE":"FILE KEY",
                 // "GOOGLE_BUCKET_NAME":"BUCKET",
                 "JWT_COOKIE":"authCookie",

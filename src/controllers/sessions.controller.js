@@ -2,11 +2,9 @@ import jwt from "jsonwebtoken"
 import __dirname from "../utils.js";
 import ErrorsDictionary from "../dictionary/errors.js";
 import errorCodes from "../dictionary/errorCodes.js";
-import MailerService from "../service/mailerService.js";
+import MailerService from "../service/MailerService.js"
 import { userService } from "../service/index.js";
 import authService  from "../service/authService.js";
-
-//quedamos en editar este pedazo de codigo
 import config from "../config/config.js";
 import DMailTemplates from "../constants/DMailTemplates.js";
 
@@ -160,8 +158,8 @@ const passwordRestoreRequest = async (req, res) => {
   const { email } = req.body;
   const user = await userService.getUserBy({ email });
   if (!user) return res.sendBadRequest("User doesn't exist ");
-  const mailerService = new MailerService();
-  const result = await mailerService.sendMail(
+  const MailerService = new MailerService();
+  const result = await MailerService.sendMail(
     [email],
     DMailTemplates.PWD_RESTORE,
     {}

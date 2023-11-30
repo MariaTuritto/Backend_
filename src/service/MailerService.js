@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 import Handlebars from "handlebars";
 import fs from "fs";
 import config from '../config/config.js';
